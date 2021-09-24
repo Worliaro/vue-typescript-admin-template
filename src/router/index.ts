@@ -9,6 +9,7 @@ import componentsRouter from './modules/components'
 import chartsRouter from './modules/charts'
 import tableRouter from './modules/table'
 import nestedRouter from './modules/nested'
+import threejsDemo from './modules/threejs-demo'
 
 Vue.use(VueRouter)
 
@@ -204,6 +205,7 @@ export const asyncRoutes: RouteConfig[] = [
   chartsRouter,
   nestedRouter,
   tableRouter,
+  threejsDemo, // threejs demo routes
   {
     path: '/example',
     component: Layout,

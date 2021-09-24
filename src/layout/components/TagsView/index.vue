@@ -1,8 +1,5 @@
 <template>
-  <div
-    id="tags-view-container"
-    class="tags-view-container"
-  >
+  <div id="tags-view-container" class="tags-view-container">
     <scroll-pane
       ref="scrollPane"
       class="tags-view-wrapper"
@@ -15,10 +12,10 @@
         :class="isActive(tag) ? 'active' : ''"
         :to="{path: tag.path, query: tag.query, fullPath: tag.fullPath}"
         class="tags-view-item"
-        @click.middle.native="!isAffix(tag)?closeSelectedTag(tag):''"
+        @click.middle.native="!isAffix(tag) ? closeSelectedTag(tag) : ''"
         @contextmenu.prevent.native="openMenu(tag, $event)"
       >
-        {{ $t('route.' + tag.meta.title) }}
+        {{ $t("route." + tag.meta.title) }}
         <span
           v-if="!isAffix(tag)"
           class="el-icon-close"
@@ -28,24 +25,20 @@
     </scroll-pane>
     <ul
       v-show="visible"
-      :style="{left: left+'px', top: top+'px'}"
+      :style="{left: left + 'px', top: top + 'px'}"
       class="contextmenu"
     >
       <li @click="refreshSelectedTag(selectedTag)">
-        {{ $t('tagsView.refresh') }}
+        {{ $t("tagsView.refresh") }}
       </li>
-      <li
-        v-if="!isAffix(selectedTag)"
-        @click="closeSelectedTag(selectedTag)"
-      >
-        {{
-          $t('tagsView.close') }}
+      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">
+        {{ $t("tagsView.close") }}
       </li>
       <li @click="closeOthersTags">
-        {{ $t('tagsView.closeOthers') }}
+        {{ $t("tagsView.closeOthers") }}
       </li>
       <li @click="closeAllTags(selectedTag)">
-        {{ $t('tagsView.closeAll') }}
+        {{ $t("tagsView.closeAll") }}
       </li>
     </ul>
   </div>
@@ -66,11 +59,11 @@ import ScrollPane from './ScrollPane.vue'
   }
 })
 export default class extends Vue {
-  private visible = false
-  private top = 0
-  private left = 0
-  private selectedTag: ITagView = {}
-  private affixTags: ITagView[] = []
+  private visible = false;
+  private top = 0;
+  private left = 0;
+  private selectedTag: ITagView = {};
+  private affixTags: ITagView[] = [];
 
   get visitedViews() {
     return TagsViewModule.visitedViews
@@ -168,11 +161,13 @@ export default class extends Vue {
     TagsViewModule.delCachedView(view)
     const { fullPath } = view
     this.$nextTick(() => {
-      this.$router.replace({
-        path: '/redirect' + fullPath
-      }).catch(err => {
-        console.warn(err)
-      })
+      this.$router
+        .replace({
+          path: '/redirect' + fullPath
+        })
+        .catch(err => {
+          console.warn(err)
+        })
     })
   }
 
@@ -184,7 +179,10 @@ export default class extends Vue {
   }
 
   private closeOthersTags() {
-    if (this.selectedTag.fullPath !== this.$route.path && this.selectedTag.fullPath !== undefined) {
+    if (
+      this.selectedTag.fullPath !== this.$route.path &&
+      this.selectedTag.fullPath !== undefined
+    ) {
       this.$router.push(this.selectedTag.fullPath).catch(err => {
         console.warn(err)
       })
@@ -211,9 +209,11 @@ export default class extends Vue {
       // Default redirect to the home page if there is no tags-view, adjust it if you want
       if (view.name === 'Dashboard') {
         // to reload home page
-        this.$router.replace({ path: '/redirect' + view.fullPath }).catch(err => {
-          console.warn(err)
-        })
+        this.$router
+          .replace({ path: '/redirect' + view.fullPath })
+          .catch(err => {
+            console.warn(err)
+          })
       } else {
         this.$router.push('/').catch(err => {
           console.warn(err)
@@ -312,7 +312,7 @@ export default class extends Vue {
         border-color: #42b983;
 
         &::before {
-          content: '';
+          content: "";
           background: #fff;
           display: inline-block;
           width: 8px;

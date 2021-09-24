@@ -37,6 +37,12 @@ export default {
     'menu1-3': '菜单 1-3',
     menu2: '菜单 2',
     table: '表格',
+    // ThreeJs demo  start
+    ThreejsDemo: 'ThreejsDemo',
+    ThreejsDemoList: 'demo列表',
+    ThreejsDemo01: 'demo01',
+    ThreejsDemo02: 'demo02',
+    // ThreeJs demo  end
     dynamicTable: '动态表格',
     draggableTable: '可拖拽表格',
     inlineEditTable: '表格内编辑',
