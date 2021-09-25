@@ -65,11 +65,28 @@ export default class extends Vue {
     renderer.domElement.style.borderRadius = '4px' // 设置canvas样式
     domThreejs.appendChild(renderer.domElement) // 视窗dom中插入canvas对象
     // 执行渲染操作  指定场景 相机
-    // renderer.render(scene, camera) // 执行渲染操作
+    // renderer.render(scene, camera) // 执行渲染操作-----1 静止
+    // 2运动
+    // function render() {
+    //   renderer.render(scene, camera)
+    //   mesh.rotateY(0.01)// 每次绕y轴旋转0.01弧度
+    //   requestAnimationFrame(render)
+    // }
+    // render()
+    // 3 均匀运动
+    let startTime = new Date()
     function render() {
+      const currentTime = new Date()
+      const diffTime:number = currentTime - startTime // 时间差
+      startTime = currentTime
       renderer.render(scene, camera)
-      mesh.rotateY(0.01)// 每次绕y轴旋转0.01弧度
       requestAnimationFrame(render)
+      /**
+       * 在实际执行程序的时候，可能requestAnimationFrame(render)请求的函数并不一定能按照理想的60FPS频率执行，
+       * 两次执行渲染函数的时间间隔也不一定相同，如果执行旋转命令的rotateY的时间间隔不同，旋转运动就不均匀，
+       * 为了解决这个问题需要记录两次执行绘制函数的时间间隔
+       */
+      mesh.rotateY(0.001 * diffTime) // 旋转角速度0.001弧度每毫秒
     }
     render()
   }
