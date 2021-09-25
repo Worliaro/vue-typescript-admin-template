@@ -6,11 +6,12 @@
           v-for="item in routeOptions"
           :key="item.key"
           :to="item.path"
+          class="route-demo-item"
           exact
         >
-          <div class="route-demo-item">
-            {{ item.label }}
-          </div>
+            <div class="route-label">
+              {{ item.label }}
+            </div>
         </router-link>
       </div>
       <div class="demo-display-area">
@@ -59,22 +60,33 @@ export default class extends Vue {
     .demo-list-area {
       width: 150px;
       height: 100%;
-      margin: 0px 0px 0px 10px;
-      background-color: aliceblue;
-      text-align: center;
       .route-demo-item {
         color: RGB(24, 144, 255);
         height: 32px;
         line-height: 32px;
-        &:hover {
-          cursor: pointer;
+        display: block;
+        margin: 10px;
+        margin-right: 0px;
+
+        .route-label{
+          text-align: center;
+          border-radius: 4px;
+          &:hover {
+            cursor: pointer;
+            background-color: RGB(8, 68, 131);
+            color: RGB(255, 255, 255);
+            font-weight: bold;
+          }
+        }
+      }
+      .router-link-active{
+        .route-label{
           background-color: RGB(8, 68, 131);
-          margin-left: -10px;
-          // margin-right: -10px;
           color: RGB(255, 255, 255);
           font-weight: bold;
         }
       }
+
     }
     .demo-display-area {
       flex: 1;
