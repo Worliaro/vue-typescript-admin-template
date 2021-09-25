@@ -65,10 +65,13 @@ export default class extends Vue {
     renderer.domElement.style.borderRadius = '4px' // 设置canvas样式
     domThreejs.appendChild(renderer.domElement) // 视窗dom中插入canvas对象
     // 执行渲染操作  指定场景 相机
-    setInterval(() => {
-      renderer.render(scene, camera) // 执行渲染操作
+    // renderer.render(scene, camera) // 执行渲染操作
+    function render() {
+      renderer.render(scene, camera)
       mesh.rotateY(0.01)// 每次绕y轴旋转0.01弧度
-    }, 20)
+      requestAnimationFrame(render)
+    }
+    render()
   }
 }
 </script>
