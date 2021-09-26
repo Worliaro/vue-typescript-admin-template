@@ -13,6 +13,7 @@
     "mock": "cd mock && ts-node-dev mock-server.ts"
   },
   "dependencies": {
+    "@three-ts/orbit-controls": "^1.4.7",
     "@tinymce/tinymce-vue": "^3.2.6",
     "@toast-ui/editor": "^2.5.1",
     "@types/three": "^0.132.0",
