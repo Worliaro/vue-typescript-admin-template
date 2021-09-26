@@ -82,7 +82,11 @@ export default class extends Vue {
       return
     }
     const meshOld = sceneObj.children.find(item => item.type && item.type === 'Mesh')
+    debugger
     if (meshOld) {
+      // 释放将移除的Mesh对象【网格模型】绑定的几何体和材质所占用的内存
+      meshOld.geometry.dispose()
+      meshOld.material.dispose()
       sceneObj.remove(meshOld)
     }
     let showGeometry:THREE.BufferGeometry
