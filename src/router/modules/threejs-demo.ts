@@ -1,7 +1,7 @@
 import { RouteConfig } from 'vue-router'
 import Layout from '@/layout/index.vue'
 
-const threejsDemoRoutes:RouteConfig = {
+const threejsDemoRoutes: RouteConfig = {
   path: '/threejsDemo',
   component: Layout,
   redirect: '/threejsDemo/demolist',
@@ -34,6 +34,14 @@ const threejsDemoRoutes:RouteConfig = {
           name: 'ThreejsDemo02',
           meta: {
             title: 'ThreejsDemo02'
+          }
+        },
+        {
+          path: 'demo03',
+          component: () => import('@/views/demo-threejs/demo03/index.vue'),
+          name: 'ThreejsDemo03',
+          meta: {
+            title: 'ThreejsDemo03'
           }
         }
       ]

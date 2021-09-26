@@ -43,6 +43,11 @@ export default class extends Vue {
       key: 'ThreejsDemo02',
       path: '/threejsDemo/demolist/demo02',
       label: 'demo02'
+    },
+    {
+      key: 'ThreejsDemo03',
+      path: '/threejsDemo/demolist/demo03',
+      label: 'demo03'
     }
   ];
 }
