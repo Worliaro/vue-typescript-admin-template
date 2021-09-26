@@ -14,7 +14,6 @@ export default class extends Vue {
   private domThree: HTMLElement = this.$refs[this.divName] as HTMLElement
 
   mounted() {
-    debugger
     this.getThreeDivOption()
     if (this.domThree) {
       this.init(this.domThree)
@@ -77,7 +76,7 @@ export default class extends Vue {
     let startTime = new Date()
     function render() {
       const currentTime = new Date()
-      const diffTime:number = currentTime - startTime // 时间差
+      const diffTime:number = currentTime.getUTCMilliseconds() - startTime.getUTCMilliseconds() // 时间差
       startTime = currentTime
       renderer.render(scene, camera)
       requestAnimationFrame(render)
