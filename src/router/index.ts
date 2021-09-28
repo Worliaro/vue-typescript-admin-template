@@ -10,6 +10,7 @@ import chartsRouter from './modules/charts'
 import tableRouter from './modules/table'
 import nestedRouter from './modules/nested'
 import threejsDemo from './modules/threejs-demo'
+import threejsDemos from './modules/threejs-demos'
 
 Vue.use(VueRouter)
 
@@ -206,6 +207,7 @@ export const asyncRoutes: RouteConfig[] = [
   nestedRouter,
   tableRouter,
   threejsDemo, // threejs demo routes
+  threejsDemos,
   {
     path: '/example',
     component: Layout,

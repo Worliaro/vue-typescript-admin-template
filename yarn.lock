@@ -11344,6 +11344,18 @@ thread-loader@^2.1.3:
     loader-utils "^1.1.0"
     neo-async "^2.6.0"
 
+three-trackballcontrols-ts@^0.2.3:
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/three-trackballcontrols-ts/-/three-trackballcontrols-ts-0.2.3.tgz#bfc8759320a93a6c11a64eec4899f9fce2740fe2"
+  integrity sha512-uu87QyZHZiDV5xhItp1GRXF1a612YPZNcqVayLE98EXlajuMZSLt/6AN1E10wY7iYW8d3Ac+EStqxAzYYo16RA==
+  dependencies:
+    three "0.124.0"
+
+three@0.124.0:
+  version "0.124.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.124.0.tgz#14ab1a26ba6c56e51190e1b55695cd3c1e69ea55"
+  integrity sha512-ROXp1Ly7YyF+jC910DQyAWj++Qlw2lQv0qwYLNQwdDbjk4bsOXAfGO92wYTMPNei1GMJUmCxSxc3MjGBTS09Rg==
+
 three@^0.126.1:
   version "0.126.1"
   resolved "https://registry.yarnpkg.com/three/-/three-0.126.1.tgz#cf4e4e52060fd952f6f0d5440cbd422c66bc4be7"
