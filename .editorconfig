@@ -9,6 +9,8 @@ charset = utf-8
 end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
+tabSize =2
+insertSpaces = true
 
 # Indentation override for js(x), ts(x) and vue files
 [*.{js,jsx,ts,tsx,vue}]

@@ -1,24 +1,25 @@
 <template>
   <div :ref="divName" class="threejs-container">
-      <div class="control-tools">
-          <div class="widget-geometry-change">
-               <el-select
-                  v-model="geometryTypeSelected"
-                  multiple
-                  collapse-tags
-                  style="margin-left: 20px;"
-                  placeholder="请选择"
-                  @change="handlerGeometryTypeChange"
-                  >
-                  <el-option
-                    v-for="item in geometryTypeOptions"
-                    :key="item.id"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
-                </el-select>
-          </div>
+    <div class="control-tools">
+      <div class="widget-geometry-change">
+        <el-select
+          v-model="geometryTypeSelected"
+          multiple
+          collapse-tags
+          style="margin-left: 20px;"
+          placeholder="请选择"
+          @change="handlerGeometryTypeChange"
+        >
+          <el-option
+            v-for="item in geometryTypeOptions"
+            :key="item.id"
+            :label="item.label"
+            :value="item.value"
+          >
+          </el-option>
+        </el-select>
       </div>
+    </div>
   </div>
 </template>
 
@@ -27,26 +28,25 @@ import { Component, Vue } from 'vue-property-decorator'
 import * as THREE from 'three'
 import { OrbitControls } from '@three-ts/orbit-controls'
 
-enum GeometryType{
-    Box='Box',
-    Sphere='Sphere',
-    Cylinder='Cylinder',
-    Octahedron='Octahedron',
-    Dodecahedron='Dodecahedron',
-    Icosahedron='Icosahedron'
+enum GeometryType {
+  Box = 'Box',
+  Sphere = 'Sphere',
+  Cylinder = 'Cylinder',
+  Octahedron = 'Octahedron',
+  Dodecahedron = 'Dodecahedron',
+  Icosahedron = 'Icosahedron'
 }
 
 @Component({
   name: 'ThreeJsDemo03'
 })
-
 export default class extends Vue {
   // threejs 对象
-  private divName = 'ThreeDiv';
+  private divName = 'ThreeDiv'
   private domThree: HTMLElement = this.$refs[this.divName] as HTMLElement
-  private scene:THREE.Scene;
-  private camera:THREE.Camera;
-  private renderer:THREE.WebGLRenderer;
+  private scene: THREE.Scene | null = null
+  private camera: THREE.Camera | null = null
+  private renderer: THREE.WebGLRenderer | null = null
 
   // 几何体类型选择组件
   private geometryTypeOptions = [
@@ -83,7 +83,7 @@ export default class extends Vue {
   ]
 
   private geometryTypeSelected = [this.geometryTypeOptions[0].value]
-  handlerGeometryTypeChange():void {
+  handlerGeometryTypeChange(): void {
     const showGeometryTypes = this.geometryTypeSelected
     // 移除已有的几何体
     const sceneObj = this.scene
@@ -92,12 +92,14 @@ export default class extends Vue {
       return
     }
     // 移除所有已添加的几何体
-    const meshesOld = sceneObj.children.filter(item => item.type && item.type === 'Mesh')
+    const meshesOld = sceneObj.children.filter(
+      item => item.type && item.type === 'Mesh'
+    )
     if (meshesOld.length > 0) {
       // 释放将移除的Mesh对象【网格模型】绑定的几何体和材质所占用的内存
       meshesOld.forEach(item => {
-        item.geometry.dispose()
-        item.material.dispose()
+        // item.geometry.dispose();
+        // item.material.dispose();
         sceneObj.remove(item)
       })
     }
@@ -117,8 +119,8 @@ export default class extends Vue {
     })
   }
 
-  makeGeometry(type:string) {
-    let showGeometry:THREE.BufferGeometry
+  makeGeometry(type: string) {
+    let showGeometry: THREE.BufferGeometry
     if (type === GeometryType.Box) {
       showGeometry = new THREE.BoxGeometry(100, 100, 100) // 创建一个立方体几何对象
     } else if (type === GeometryType.Sphere) {
@@ -151,7 +153,7 @@ export default class extends Vue {
     }
   }
 
-  init(domThreejs:HTMLElement) {
+  init(domThreejs: HTMLElement) {
     // 1 创建场景对象Scene
     this.scene = new THREE.Scene()
     const sceneObj = this.scene
@@ -188,7 +190,7 @@ export default class extends Vue {
     sceneObj.add(axisHelper)
 
     // 2 相机设置
-    const viewAreaWidth = domThreejs.offsetWidth// 可视区域宽
+    const viewAreaWidth = domThreejs.offsetWidth // 可视区域宽
     const viewAreaHeight = domThreejs.offsetHeight // 可视区域高
     const k = viewAreaWidth / viewAreaHeight // 可视区域宽高比
     const s = 200 // 三维场景显示范围控制系数  系数越大 显示的范围越大
@@ -211,7 +213,8 @@ export default class extends Vue {
       requestAnimationFrame(render)
     }
     render()
-    const controls = new OrbitControls(camera, renderer.domElement)// 创建控件对象
+    const controls = new OrbitControls(camera, renderer.domElement) // 创建控件对象
+    console.log(controls)
   }
 }
 </script>
@@ -220,7 +223,7 @@ export default class extends Vue {
   width: 100%;
   height: 100%;
   position: relative;
-  .control-tools{
+  .control-tools {
     position: absolute;
     top: 0;
     left: 0;
@@ -229,11 +232,11 @@ export default class extends Vue {
     padding: 6px;
     border-radius: 4px;
     background-color: #faccc1;
-    .widget-geometry-change{
-        padding: 10px 10px 0px 10px;
-        ::v-deep .el-select{
-          margin-left:0px !important;
-        }
+    .widget-geometry-change {
+      padding: 10px 10px 0px 10px;
+      ::v-deep .el-select {
+        margin-left: 0px !important;
+      }
     }
   }
 }
