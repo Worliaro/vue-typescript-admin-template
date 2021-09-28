@@ -123,7 +123,7 @@ export default class extends Vue {
       }
     }
     const controls = new Controls(cubeMaterial, webGlRenderer)
-    helperGui.add(controls, 'gridHelper').onChange(function(e) {
+    helperGui.add(controls, 'gridHelper').onChange(function(e: boolean) {
       console.log('[helperGui:gridHelper]', e)
       if (e) {
         scene.remove(gridHelper)
@@ -134,7 +134,7 @@ export default class extends Vue {
 
     // 创建 meshGui 目录，目录下包含组件  wireframe  color  rotationSpeed
     const meshGui = gui.addFolder('Mesh')
-    meshGui.add(controls, 'wireframe').onChange(e => {
+    meshGui.add(controls, 'wireframe').onChange((e: boolean) => {
       console.log('[helperGui:wireframe]', e)
       cubeMaterial.wireframe = e
     })
@@ -146,7 +146,7 @@ export default class extends Vue {
 
     // 创建 sceneGui 目录，目录下不包含 backGround 组件
     const sceneGui = gui.addFolder('Scene')
-    sceneGui.addColor(controls, 'backGround').onChange(e => {
+    sceneGui.addColor(controls, 'backGround').onChange((e: any) => {
       console.log('[helperGui:Scene]', e)
       webGlRenderer.setClearColor(e)
     })
