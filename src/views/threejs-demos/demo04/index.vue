@@ -61,184 +61,107 @@ export default class extends Vue {
     const viewWidth = domThreejsObj.offsetWidth
     const viewHeight = domThreejsObj.offsetHeight
     const viewSolution = domThreejsObj.offsetWidth / domThreejsObj.offsetWidth
-    // 创建WebGL渲染器
+
+    // 创建webGl渲染器
     const webGlRenderer = new THREE.WebGLRenderer()
-    webGlRenderer.antiallias = true
-    webGlRenderer.autoClear = true
-    webGlRenderer.setClearColor(0x050505)
-    webGlRenderer.setSize(viewWidth, viewHeight)
-    webGlRenderer.shadowMap.enabled = true
+    webGlRenderer.antialias = true // 抗锯齿
+    webGlRenderer.autoClear = true // 自动清除
+    webGlRenderer.setClearColor(0x050505) // 渲染背景色
+    webGlRenderer.setSize(viewWidth, viewHeight) // 渲染范围
     // 创建相机
     const camera = new THREE.PerspectiveCamera(45, viewSolution, 0.1, 10000)
-    camera.position.set(200, 150, 200)
+    camera.position.set(0, 400, 800)
     camera.lookAt(new THREE.Vector3(0, 0, 0))
     // 创建场景
     const scene = new THREE.Scene()
-    // 灯光
+    // 创建定点小球
+    const ballGeometrySmall = new THREE.SphereGeometry(10, 100, 100)
+    const ballMaterialSmall = new THREE.MeshLambertMaterial({
+      color: Math.random() * 0xffffff
+    })
+    const ballSmall = new THREE.Mesh(ballGeometrySmall, ballMaterialSmall)
+    ballSmall.position.y = 90
+    scene.add(ballSmall)
+    // 创建动点大球
+    const ballGeometryBig = new THREE.SphereGeometry(20, 100, 100)
+    const ballMaterialBig = new THREE.MeshLambertMaterial({
+      color: Math.random() * 0xffffff
+    })
+    const ballBig = new THREE.Mesh(ballGeometryBig, ballMaterialBig)
+    ballBig.position.z = 290
+    scene.add(ballBig)
+    // 创建轴心点
+    const pivotPoint = new THREE.Object3D()
+    pivotPoint.add(ballBig)
+    ballSmall.add(pivotPoint)
+    // 创建光源 ambientLight: 环境光  directionalLight 平行光
     const ambientLight = new THREE.AmbientLight(0x404040)
+    const directionalLight1 = new THREE.DirectionalLight(0xc0c090)
+    const directionalLight2 = new THREE.DirectionalLight(0xc0c090)
+    directionalLight1.position.set(-300, -400, 300)
+    directionalLight2.position.set(300, 400, -300)
     scene.add(ambientLight)
-    const spotLight = new THREE.SpotLight(0xcccccc)
-    spotLight.position.set(-100, 300, 10)
-    spotLight.castShadow = true
-    // 阴影分辨率
-    spotLight.shadow.mapSize.width = 2048
-    spotLight.shadow.mapSize.height = 2048
-    scene.add(spotLight)
-    // 平面
-    const planeGeometry = new THREE.PlaneGeometry(200, 400)
-    const planeMaterial = new THREE.MeshLambertMaterial({
-      color: 0x6d6565
-    })
-    const plane = new THREE.Mesh(planeGeometry, planeMaterial)
-    plane.receiveShadow = true
-    // 绕x轴旋转90度
-    plane.rotation.x = -0.5 * Math.PI
-    plane.position.y = -10
-    plane.position.x = -10
-    plane.position.z = -80
-    scene.add(plane)
-    // 立方体
-    const cubeGeometry = new THREE.BoxGeometry(50, 50, 50)
-    const cubeMaterial = new THREE.MeshLambertMaterial({
-      color: Math.random() * 0xffffff
-    })
-    const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
-    cube.castShadow = true
-    scene.add(cube)
-    // 球体
-    const sphereGeometry = new THREE.SphereGeometry(25, 20, 20)
-    const sphereMaterial = new THREE.MeshLambertMaterial({
-      color: Math.random() * 0xffffff
-    })
-    const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
-    sphere.castShadow = true
-    scene.add(sphere)
-
-    // 创建球体轨迹控件
+    scene.add(directionalLight1)
+    scene.add(directionalLight2)
+    // 创建网格辅助
+    const gridHelper = new THREE.GridHelper(1200, 50, 0xff4444, 0x404040)
+    scene.add(gridHelper)
+    // 创建轨迹球空间
     const trackballControls = new TrackballControls(
       camera,
       webGlRenderer.domElement
     )
-
-    // 创建 datGUI 面板
-    class CubeControls {
-      // 立方体可调试属性
-      cubeRotationSpeed: number = 0.01
-      cubePositionX: number = 10
-      cubePositionY: number = 35
-      cubePositionZ: number = -30
-      // 立方体显隐
-      cubeVisible: boolean = false
-    }
-    class SphereControls {
-      // 球体可调试属性
-      spherePositionX: number = 8
-      spherePositionY: number = 34
-      spherePositionZ: number = -25
-      sphereWireframe: boolean = false
-      sphereColor: any = null
-      constructor(sphereMaterial: THREE.MeshLambertMaterial) {
-        this.sphereWireframe = sphereMaterial.wireframe
-        this.sphereColor = sphereMaterial.color.getStyle()
-      }
-    }
-    class PlaneControls {
-      // 平面可调试属性
-      planeColor: any = null
-      constructor(planeMaterial: THREE.MeshLambertMaterial) {
-        this.planeColor = planeMaterial.color.getStyle()
-      }
-    }
-    class OtherControls {
-      // 场景背景
-      sceneBackground: any = null
-      // 灯光开关
-      spotLight: boolean = false
-      // 下拉选择
-      selectMesh: string = 'both'
-      constructor(renderer: THREE.WebGLRenderer) {
-        this.sceneBackground = renderer
+    // 创建图形调试空间中的组件
+    class Controls {
+      private rotationSpeed = 0.02
+      private wireframe = false
+      private color: any = null
+      private girdHelper = false
+      private backGround: any = null
+      constructor(
+        material: THREE.MeshLambertMaterial,
+        webGlRenderer: THREE.WebGLRenderer
+      ) {
+        this.wireframe = material.wireframe
+        this.color = material.color.getStyle()
+        this.backGround = webGlRenderer
           .getClearColor(new THREE.Color())
           .getHex()
       }
-    }
-    // 创建dat.GUI 面板
-    const gui = new GUI()
-    // 立方体调试栏目
-    const cubeControlsGUI = gui.addFolder('CubeControls')
-    const cubeControls = new CubeControls()
-    cubeControlsGUI.add(cubeControls, 'cubeRotationSpeed', 0, 0.5)
-    cubeControlsGUI.add(cubeControls, 'cubePositionX', -70, 70)
-    cubeControlsGUI.add(cubeControls, 'cubePositionY', 35, 85)
-    cubeControlsGUI.add(cubeControls, 'cubePositionZ', -200, 100)
-    cubeControlsGUI.add(cubeControls, 'cubePositionX').listen()
-    cubeControlsGUI.add(cubeControls, 'cubePositionY').listen()
-    cubeControlsGUI.add(cubeControls, 'cubePositionZ').listen()
-    cubeControlsGUI
-      .add(cubeControls, 'cubeVisible')
-      .onChange(function(e: boolean) {
-        e ? scene.remove(cube) : scene.add(cube)
-      })
-    // 球体调试栏目
-    const sphereControlsGUI = gui.addFolder('SphereControls')
-    const sphereControls = new SphereControls(sphereMaterial)
-    sphereControlsGUI.add(sphereControls, 'spherePositionX', 0, 100)
-    sphereControlsGUI.add(sphereControls, 'spherePositionY', 0, 100)
-    sphereControlsGUI.add(sphereControls, 'spherePositionZ', -200, 100)
-    sphereControlsGUI
-      .add(sphereControls, 'sphereWireframe')
-      .onChange((e: boolean) => {
-        sphereMaterial.wireframe = e
-      })
-    sphereControlsGUI
-      .addColor(sphereControls, 'sphereColor')
-      .onChange((e: any) => {
-        sphereMaterial.color.setStyle(e)
-      })
-    // 平面调试栏目
-    const planeControlsGUI = gui.addFolder('PlaneControls')
-    const planeControls = new PlaneControls(planeMaterial)
-    planeControlsGUI
-      .addColor(planeControls, 'planeColor')
-      .onChange((e: any) => {
-        planeMaterial.color.setStyle(e)
-      })
-    // 场景等其他调试栏目
-    const otherControlsGUI = gui.addFolder('OtherControls')
-    const otherControls = new OtherControls(webGlRenderer)
-    otherControlsGUI
-      .addColor(otherControls, 'sceneBackground')
-      .onChange((e: any) => {
-        webGlRenderer.setClearColor(e)
-      })
-    otherControlsGUI.add(otherControls, 'spotLight').onChange((e: boolean) => {
-      e ? scene.remove(spotLight) : scene.add(spotLight)
-    })
-    otherControlsGUI
-      .add(otherControls, 'selectMesh', ['cube', 'sphere', 'both'])
-      .onChange((e: string) => {
-        scene.remove(cube)
-        scene.remove(sphere)
-        switch (e) {
-          case 'cube':
-            scene.add(cube)
-            break
-          case 'sphere':
-            scene.add(sphere)
-            break
-          case 'both':
-            scene.add(cube)
-            scene.add(sphere)
-        }
-      })
-    // 让cube和sphere以某个轴同步运动
-    const pivotPoint = new THREE.Object3D()
-    pivotPoint.add(sphere)
-    cube.add(pivotPoint)
-    // 将渲染器添加到画布
-    domThreejsObj.appendChild(webGlRenderer.domElement)
-    ;(<HTMLLIElement>vm.$refs.WidgetGUI).appendChild(gui.domElement)
 
+      getRotationSpeed() {
+        return this.rotationSpeed
+      }
+    }
+    // 创建图形调试空间
+    const gui = new GUI()
+    // 创建 helerGUI目录，包含 gridHelper组件
+    const helperGui = gui.addFolder('Helper')
+    const controls = new Controls(ballMaterialSmall, webGlRenderer)
+    helperGui.add(controls, 'girdHelper').onChange(function(e: any) {
+      if (e) {
+        scene.remove(gridHelper)
+      } else {
+        scene.add(gridHelper)
+      }
+    })
+    // 创建 meshGui目录，目录下包含组件  wireframe color rotationSpeed
+    const meshGui = gui.addFolder('Mesh')
+    meshGui.add(controls, 'wireframe').onChange(function(e: any) {
+      ballMaterialSmall.wireframe = e
+    })
+    meshGui.addColor(controls, 'color').onChange(function(e: any) {
+      ballMaterialSmall.color.setStyle(e)
+    })
+    meshGui.add(controls, 'rotationSpeed', 0, 0.1)
+    // 创建 sceneGui目录，目录下包含 backGround组件
+    const sceneGui = gui.addFolder('Scene')
+    sceneGui.addColor(controls, 'backGround').onChange(function(e: any) {
+      webGlRenderer.setClearColor(e)
+    })
+    // 将渲染器添加到画布
+    domThreejsObj.append(webGlRenderer.domElement)
+    ;(<HTMLLIElement>vm.$refs.WidgetGUI).appendChild(gui.domElement)
     // 窗口大小改变触发的方法
     window.addEventListener(
       'resize',
@@ -251,17 +174,8 @@ export default class extends Vue {
     function render(): void {
       // 更新性能插件
       stats.update()
-      // 让立方体 绕坐标轴旋转
-      cube.rotation.x += cubeControls.cubeRotationSpeed
-      cube.rotation.y += cubeControls.cubeRotationSpeed
-      cube.rotation.z += cubeControls.cubeRotationSpeed
-      cube.position.x = cubeControls.cubePositionX
-      cube.position.y = cubeControls.cubePositionY
-      cube.position.z = cubeControls.cubePositionZ
-
-      sphere.position.x = sphereControls.spherePositionX
-      sphere.position.y = sphereControls.spherePositionY
-      sphere.position.z = sphereControls.spherePositionZ
+      // 小球旋转
+      ballSmall.rotation.y += controls.getRotationSpeed()
       // 更新轨迹球空间的操作范围
       trackballControls.handleResize()
       // 更新物体位置
