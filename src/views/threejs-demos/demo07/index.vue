@@ -180,7 +180,8 @@ export default class extends Vue {
       stats.update()
       // traverse 方法 在这个对象scene 和所有子对象 children上执行回调
       scene.traverse(function(e: any) {
-        if ((e as THREE.Mesh) && e != plane) {
+        console.log(e)
+        if (e instanceof THREE.Mesh && e !== plane) {
           e.rotation.x += controls.getRotationSpeed()
           e.rotation.y += controls.getRotationSpeed()
           e.rotation.z += controls.getRotationSpeed()
