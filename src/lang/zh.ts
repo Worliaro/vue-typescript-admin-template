@@ -53,6 +53,7 @@ export default {
     MyThreejsDemosHomeDemo02: 'demo02',
     MyThreejsDemosHomeDemo03: 'demo03',
     MyThreejsDemosHomeDemo04: 'demo04',
+    MyThreejsDemosHomeDemo05: 'demo05',
     // threejs-demos end
     dynamicTable: '动态表格',
     draggableTable: '可拖拽表格',
