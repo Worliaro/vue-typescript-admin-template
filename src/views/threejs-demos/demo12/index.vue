@@ -277,7 +277,7 @@ export default class extends Vue {
     scene.add(gridHelper)
     // GUI
     const gui = this.initGui(<HTMLElement>vm.$refs.WidgetGUI)
-    scene.add(gui)
+    ;(<HTMLElement>vm.$refs.WidgetGUI).appendChild(gui.domElement)
     // 轨道控件
     let orbitControls = this.initOrbitControls(camera, webGlRenderer.domElement)
     // // 窗口大小改变触发的方法
