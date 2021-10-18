@@ -130,6 +130,11 @@ export default class extends Vue {
       key: 'MyThreejsDemosHomeDemo19',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo19',
       label: 'demo19'
+    },
+    {
+      key: 'MyThreejsDemosHomeDemo20',
+      path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo20',
+      label: 'demo20'
     }
   ]
 }
@@ -153,6 +158,8 @@ export default class extends Vue {
       .demo-list-area {
         width: 150px;
         float: left;
+        overflow-y: auto;
+        height: 100%;
         .route-demo-item {
           color: RGB(24, 144, 255);
           height: 32px;
@@ -178,6 +185,24 @@ export default class extends Vue {
             font-weight: bold;
           }
         }
+      }
+      ::-webkit-scrollbar-track-piece {
+        //滚动条凹槽的颜色，还可以设置边框属性
+        background-color: #f8f8f8;
+      }
+      ::-webkit-scrollbar {
+        //滚动条的宽度
+        width: 9px;
+        height: 9px;
+      }
+      ::-webkit-scrollbar-thumb {
+        //滚动条的设置
+        background-color: #dddddd;
+        background-clip: padding-box;
+        min-height: 28px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background-color: #bbb;
       }
       .demo-display-area {
         height: 100%;
