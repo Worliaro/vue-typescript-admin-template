@@ -12,9 +12,10 @@ import TWEEN from '@tweenjs/tween.js'
 import Stats from 'three/examples/jsm/libs/stats.module'
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module'
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls'
+import { GridHelper } from 'three'
 
 @Component({
-  name: 'MyThreeDemosHomeDemo21'
+  name: 'MyThreeDemosHomeDemo22'
 })
 export default class extends Vue {
   private divName = 'domThreejs'
@@ -66,64 +67,48 @@ export default class extends Vue {
     const webGlRenderer = new THREE.WebGLRenderer()
     webGlRenderer.setSize(viewWidth, viewHeight)
     webGlRenderer.setClearColor(0x050505)
-    domThreejsObj.append(webGlRenderer.domElement)
+    domThreejsObj.appendChild(webGlRenderer.domElement)
     // 创建相机
     const camera = new THREE.PerspectiveCamera(45, viewSolution, 0.1, 10000)
-    camera.position.set(0, 400, 600)
+    camera.position.set(0, 300, 600)
     camera.lookAt(new THREE.Vector3(0, 0, 0))
     // 创建场景
     const scene = new THREE.Scene()
     // 灯光
-    const spotLight = new THREE.SpotLight(0xffffff)
-    spotLight.position.set(-300, 600, -400)
-    spotLight.castShadow = true
+    const spotLight = new THREE.SpotLight(0xe3e3e30)
+    spotLight.position.set(-100, 200, 300)
     scene.add(spotLight)
-    scene.add(new THREE.AmbientLight(0x5c5c5c))
-    // 初始化模型
-    const gridHelper = new THREE.GridHelper(1200, 50, 0xcd3700, 0x4a4a4a)
-    scene.add(gridHelper)
-    const cubeGeometry = new THREE.BoxGeometry(100, 100, 100)
-    const cubeMaterial = new THREE.MeshLambertMaterial({
+    scene.add(new THREE.AmbientLight(0xb3b3b3))
+    // 实体
+    const gridHelper = new GridHelper(1200, 60, 0xcd3333, 0x4a4a4a)
+    // scene.add(gridHelper)
+    const sphereGeometry = new THREE.SphereGeometry(20, 50, 50)
+    const sphereMaterial = new THREE.MeshLambertMaterial({
       color: 0x9370db
     })
-    const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
-    cube.position.y = 50
-    cube.name = 'cube'
-    scene.add(cube)
-    // controls
-    const trackballControls = new TrackballControls(
-      camera,
-      webGlRenderer.domElement
-    )
-    // GUI
-    const gui = new GUI()
-    ;(<HTMLElement>vm.$refs.WidgetGUI).append(webGlRenderer.domElement)
-    // Tween
-    const tween = new TWEEN.Tween(camera.position)
-    tween.to(
-      {
-        x: 5000,
-        y: 200,
-        z: 1000
-      },
-      5000
-    )
-    tween.easing(TWEEN.Easing.Linear.None)
-    const tweenBack = new TWEEN.Tween(camera.position).to(
-      {
-        x: 100,
-        y: 200,
-        z: 100
-      },
-      5000
-    )
-    tweenBack.easing(TWEEN.Easing.Linear.None)
-    tween.chain(tweenBack)
-    tweenBack.chain(tween)
-    tween.start()
-    tween.onUpdate(() => {
-      console.log('tween:update')
-    })
+    const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
+    sphere.position.y = 25
+    sphere.position.x = -400
+    sphere.name = 'sphere'
+    scene.add(sphere)
+    // 初始化 Tween
+    const shpereObj = scene.getObjectByName('sphere')
+    if (shpereObj) {
+      const tweenShpere = new TWEEN.Tween(shpereObj.position)
+      tweenShpere.to({ x: 400 }, 2000)
+      //   tweenShpere.easing(TWEEN.Easing.Elastic.InOut)
+      tweenShpere.start()
+      tweenShpere.onUpdate(() => {
+        console.log('tweenSphere:update')
+      })
+      //   const shpereObj1 = scene.getObjectByName('sphere')
+      const tweenSphereBack = new TWEEN.Tween(shpereObj.position)
+      tweenSphereBack.to({ x: -400 }, 2000)
+      tweenShpere.chain(tweenSphereBack)
+      tweenSphereBack.chain(tweenShpere)
+    }
+    // 初始化controls
+    const controls = new TrackballControls(camera, webGlRenderer.domElement)
 
     // 窗口大小改变触发的方法
     window.addEventListener(
@@ -137,11 +122,8 @@ export default class extends Vue {
     function render(): void {
       // 更新性能插件
       stats.update()
-      // tween更新
       TWEEN.update()
-      // controls更新
-      trackballControls.update()
-      trackballControls.handleResize()
+      controls.update()
     }
     function animate(): void {
       requestAnimationFrame(animate)
