@@ -1,0 +1,269 @@
+<template>
+  <div :ref="divName" class="threejs-container">
+    <div ref="WidgetStats" class="stats-output"></div>
+    <div ref="WidgetGUI" class="gui-output"></div>
+  </div>
+</template>
+
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator'
+import * as THREE from 'three'
+import Stats from 'three/examples/jsm/libs/stats.module'
+import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls'
+import { GUI } from 'three/examples/jsm/libs/dat.gui.module'
+import { Color, DirectionalLightShadow } from 'three'
+
+@Component({
+  name: 'MyThreeDemosHomeDemo23'
+})
+export default class extends Vue {
+  private divName = 'domThreejs'
+  private domThreejs: HTMLElement = this.$refs[this.divName] as HTMLElement
+
+  mounted() {
+    this.preInit()
+    this.init()
+  }
+
+  preInitStats(domRefName: string): HTMLElement {
+    return this.$refs[domRefName] as HTMLElement
+  }
+
+  initStats(domWidgetStats: HTMLElement): Stats {
+    if (!domWidgetStats) {
+      throw new Error('[initStats]:miss dom')
+    }
+    const stats = new Stats()
+    stats.setMode(0) // 0:显示 fps, 1:ms
+    // 调整插件布局
+    stats.domElement.style.position = 'absolute'
+    stats.domElement.style.left = '0px'
+    stats.domElement.style.top = '0px'
+    // 加入画布
+    domWidgetStats.append(stats.domElement)
+    return stats
+  }
+
+  preInit() {
+    if (!this.domThreejs) {
+      this.domThreejs = this.$refs[this.divName] as HTMLElement
+    }
+  }
+
+  init() {
+    const vm = this
+    // 初始化性能插件
+    const domWidgetStats = vm.preInitStats('WidgetStats')
+    const stats = this.initStats(domWidgetStats)
+    if (!vm.domThreejs) {
+      throw new Error('[init]:miss threejs dom container')
+    }
+    const domThreejsObj = vm.domThreejs
+    const viewWidth = domThreejsObj.offsetWidth
+    const viewHeight = domThreejsObj.offsetHeight
+    const viewSolution = domThreejsObj.offsetWidth / domThreejsObj.offsetWidth
+    // 创建渲染器
+    const webGlRenderer = new THREE.WebGLRenderer()
+    webGlRenderer.setClearColor(0xeeeeee)
+    webGlRenderer.setSize(viewWidth, viewHeight)
+    // 开启渲染器支持阴影效果
+    webGlRenderer.shadowMap.enabled = true
+    webGlRenderer.shadowMap.type = THREE.PCFSoftShadowMap // 设置阴影类型
+    domThreejsObj.append(webGlRenderer.domElement)
+    // 创建相机
+    const camera = new THREE.PerspectiveCamera(45, viewSolution, 0.1, 10000)
+    camera.position.set(-35, 20, 25)
+    camera.lookAt(new THREE.Vector3(10, 0, 0))
+    // 创建场景
+    const scene = new THREE.Scene()
+    debugger
+    // 灯光
+    const ambitneLightColor = '#1c1c1c' // 环境光颜色
+    const ambientLight = new THREE.AmbientLight(ambitneLightColor)
+    scene.add(ambientLight)
+    // 平行光
+    const parallelLightColor = '#f0f0f0'
+    const directionalLight = new THREE.DirectionalLight(parallelLightColor)
+    directionalLight.position.set(-40, 60, -10)
+    directionalLight.castShadow = true
+    directionalLight.shadow.camera.near = 2
+    directionalLight.shadow.camera.far = 200
+    directionalLight.shadow.camera.left = -50
+    directionalLight.shadow.camera.right = 50
+    directionalLight.shadow.camera.top = 50
+    directionalLight.shadow.camera.bottom = -50
+    // 距离和强度
+    // directionalLight.distance = 0
+    directionalLight.intensity = 0.5
+    // 设置阴影分辨率
+    directionalLight.shadow.mapSize.width = 1024
+    directionalLight.shadow.mapSize.height = 1024
+    scene.add(directionalLight)
+    // 添加个球体模仿光源
+    const sphereLightGeometry = new THREE.SphereGeometry(0.2)
+    const sphereLightMaterial = new THREE.MeshBasicMaterial({
+      color: 0xac6c25
+    })
+    const sphereLight = new THREE.Mesh(sphereLightGeometry, sphereLightMaterial)
+    sphereLight.castShadow = true
+    sphereLight.position.set(3, 20, 3)
+    scene.add(sphereLight)
+    // 实体
+    const planeGeometry = new THREE.PlaneGeometry(600, 200, 20, 20)
+    const planeMaterial = new THREE.MeshLambertMaterial({
+      color: 0xffffff
+    })
+    const plane = new THREE.Mesh(planeGeometry, planeMaterial)
+    plane.receiveShadow = true
+    plane.rotation.x = -0.5 * Math.PI
+    plane.position.set(15, -5, 0)
+    scene.add(plane)
+
+    const cubeGeometry = new THREE.BoxGeometry(4, 4, 4)
+    const cubeMaterial = new THREE.MeshLambertMaterial({
+      color: 0xff3333
+    })
+    const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
+    cube.castShadow = true
+    cube.position.set(-4, 3, 0)
+    scene.add(cube)
+
+    const sphereGeometry = new THREE.SphereGeometry(4, 20, 20)
+    const sphereMaterial = new THREE.MeshLambertMaterial({
+      color: 0x7777ff
+    })
+    const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
+    sphere.castShadow = true
+    sphere.position.set(20, 0, 2)
+    scene.add(sphere)
+
+    // GUI
+    class GUIControls {
+      rotationSpeed = 0.03
+      bouncingSpeed = 0.03
+      ambientColor = ambitneLightColor
+      pointColor = parallelLightColor
+      intensity = 0.5
+      distance = 0
+      angle = 0.1
+      debug = false
+      castShadow = true
+      target = 'Plane'
+    }
+    const guiControls = new GUIControls()
+    const gui = new GUI()
+    debugger
+    // 环境光的颜色
+    gui.addColor(guiControls, 'ambientColor').onChange(e => {
+      ambientLight.color = new Color(e)
+    })
+    // 平行光的颜色
+    gui.addColor(guiControls, 'pointColor').onChange(e => {
+      directionalLight.color = new Color(e)
+    })
+    // 光的强度
+    gui.add(guiControls, 'intensity', 0, 5).onChange(e => {
+      directionalLight.intensity = e
+    })
+    // 距离
+    // gui.add(gui, 'distance', 0, 200).onChange(e => {
+    //     directionalLight.distance = e
+    // })
+    // debug模式
+    gui.add(guiControls, 'debug').onChange(e => {
+      if (e) {
+        const debug = new THREE.CameraHelper(directionalLight.shadow.camera)
+        debug.name = 'debug'
+        scene.add(debug)
+      } else {
+        const debug = scene.getObjectByName('debug')
+        if (debug) {
+          scene.remove(debug)
+        }
+      }
+    })
+    // 是否开启接收阴影
+    gui.add(guiControls, 'castShadow').onChange(e => {
+      directionalLight.castShadow = e
+    })
+    // 平新光的朝向
+    gui.add(guiControls, 'target', ['Plane', 'Sphere', 'Cube']).onChange(e => {
+      switch (e) {
+        case 'Plane':
+          directionalLight.target = plane
+          break
+        case 'Sphere':
+          directionalLight.target = sphere
+          break
+        case 'Cube':
+          directionalLight.target = cube
+          break
+      }
+    })
+    ;(<HTMLElement>vm.$refs.WidgetGUI).appendChild(gui.domElement)
+
+    // 窗口大小改变触发的方法
+    window.addEventListener(
+      'resize',
+      () => {
+        vm.onViewContainerResize(domThreejsObj, camera, webGlRenderer)
+      },
+      false
+    )
+
+    let step = 0
+    function viewUpdate() {
+      cube.rotation.x += guiControls.rotationSpeed
+      cube.rotation.y += guiControls.rotationSpeed
+      cube.rotation.z += guiControls.rotationSpeed
+
+      step += guiControls.bouncingSpeed
+      sphere.position.x = 20 + 10 * Math.cos(step)
+      sphere.position.y = 2 + 10 * Math.abs(Math.sin(step))
+
+      sphereLight.position.z = -8
+      sphereLight.position.y = 27 * Math.sin(step / 3)
+      sphereLight.position.x = 10 + 26 * Math.cos(step / 3)
+
+      // 让平行光的位置随球体的位置移动而移动
+      directionalLight.position.copy(sphereLight.position)
+    }
+    // 渲染方法
+    function render(): void {
+      // 更新性能插件
+      stats.update()
+      viewUpdate()
+    }
+    function animate(): void {
+      requestAnimationFrame(animate)
+      // 开始渲染
+      webGlRenderer.render(scene, camera)
+      render()
+    }
+    animate()
+  }
+
+  // 视图展示区域随窗口缩放
+  onViewContainerResize(
+    viewDom: HTMLElement,
+    camera: THREE.PerspectiveCamera,
+    renderer: THREE.WebGLRenderer
+  ): void {
+    camera.aspect = viewDom.offsetWidth / viewDom.offsetHeight
+    camera.updateProjectionMatrix() // 更新相机的投影矩阵
+    renderer.setSize(viewDom.offsetWidth, viewDom.offsetHeight) // 重新设置渲染器大小
+  }
+}
+</script>
+<style lang="scss" scoped>
+.threejs-container {
+  width: auto;
+  height: 100%;
+  position: relative;
+  .gui-output {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+  }
+}
+</style>
