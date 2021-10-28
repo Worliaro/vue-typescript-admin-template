@@ -11,7 +11,10 @@ import * as THREE from 'three'
 import Stats from 'three/examples/jsm/libs/stats.module'
 import { TrackballControls } from 'three-trackballcontrols-ts'
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module'
-import { Lensflare, LensflareElement} from 'three/examples/jsm/objects/Lensflare'
+import {
+  Lensflare,
+  LensflareElement
+} from 'three/examples/jsm/objects/Lensflare'
 import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib'
 import {
   CylinderGeometry,
@@ -65,7 +68,7 @@ export default class extends Vue {
   initRenderer(domView: HTMLElement): THREE.WebGLRenderer {
     const webGlRenderer = new THREE.WebGLRenderer({
       antialias: true,
-      alpha:true
+      alpha: true
     })
     // 设置渲染器的像素比例，按照设备
     webGlRenderer.setPixelRatio(window.devicePixelRatio)
@@ -100,7 +103,7 @@ export default class extends Vue {
   initScene() {
     const scene = new THREE.Scene()
     scene.background = new THREE.Color(0xb0e2ff)
-    scene.fog = new THREE.Fog(scene.background,1,5000)
+    scene.fog = new THREE.Fog(scene.background, 1, 5000)
     return scene
   }
 
@@ -109,62 +112,88 @@ export default class extends Vue {
    */
   initLight(scene: THREE.Scene) {
     scene.add(new THREE.AmbientLight(0xb38949))
-    const pointLight  = new THREE.PointLight(0xfffff,1,2000)
+    const pointLight = new THREE.PointLight(0xfffff, 1, 2000)
     const textureLoader = new THREE.TextureLoader()
     // 添加镜头炫光
-    const textFlare0 = textureLoader.load(require('./textures/lensflare/lensflare0_alpha.png'))
-    const textFlare3 = textureLoader.load(require('./textures/lensflare/lensflare3.png'))
-    const lensflare = new Lensflare()
-    lensflare.addElement(new LensflareElement(textFlare0,500,0,pointLight.color))
-    lensflare.addElement(new LensflareElement(textFlare3, 60, 0.6, pointLight.color));
-    lensflare.addElement(new LensflareElement(textFlare3, 100, 0.7, pointLight.color));
-    lensflare.addElement(new LensflareElement(textFlare3, 60, 0.9, pointLight.color));
-    lensflare.addElement(new LensflareElement(textFlare3, 70, 1, pointLight.color));
-    
+    const textFlare0 = textureLoader.load(
+      require('./textures/lensflare/lensflare0_alpha.png')
+    )
+    const textFlare3 = textureLoader.load(
+      require('./textures/lensflare/lensflare3.png')
+    )
+    const lensFlare = new Lensflare()
+    lensFlare.addElement(
+      new LensflareElement(textFlare0, 500, 0, pointLight.color)
+    )
+    lensFlare.addElement(
+      new LensflareElement(textFlare3, 60, 0.6, pointLight.color)
+    )
+    lensFlare.addElement(
+      new LensflareElement(textFlare3, 100, 0.7, pointLight.color)
+    )
+    lensFlare.addElement(
+      new LensflareElement(textFlare3, 60, 0.9, pointLight.color)
+    )
+    lensFlare.addElement(
+      new LensflareElement(textFlare3, 70, 1, pointLight.color)
+    )
+    pointLight.add(lensFlare)
+    pointLight.position.set(-100, 50, 0)
+    scene.add(pointLight)
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6)
+    directionalLight.castShadow = true
+    directionalLight.position.set(-100, 50, 0)
+    directionalLight.castShadow = true
+    directionalLight.shadow.mapSize.set(1024, 1024)
+    directionalLight.shadow.camera.far = 3500
+    directionalLight.shadow.camera.near = 2
+    directionalLight.shadow.camera.left = -50
+    directionalLight.shadow.camera.right = 50
+    directionalLight.shadow.camera.top = 50
+    directionalLight.shadow.camera.bottom = -50
+    const directionalLightHelper = new THREE.DirectionalLightHelper(
+      directionalLight,
+      10
+    )
+    scene.add(directionalLightHelper)
+    scene.add(directionalLight)
+
+    return {
+      pointLight,
+      directionalLight,
+      directionalLightHelper
+    }
   }
 
   /**
    * 场景中内容
    */
   initContent(scene: THREE.Scene) {
-    // 地板
-    const floorGeometry = new THREE.BoxBufferGeometry(2000, 1, 2000)
-    // 使用矩形平面光源  必须使用 MeshStandardMaterial 或者 MeshPhysicalMaterial 来实现反射效果
-    const floorMaterial = new THREE.MeshStandardMaterial({
-      color: 0x636363,
-      roughness: 0,
-      metalness: 0
+    const textureLoader = new THREE.TextureLoader()
+    const groundTexture = textureLoader.load(
+      require('./textures/terrain/grasslight-big.jpg')
+    )
+    groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping
+    groundTexture.repeat.set(25, 25)
+    groundTexture.anisotropy = 16
+    const groundGeometry = new THREE.PlaneBufferGeometry(10000, 10000)
+    const groundMaterial = new THREE.MeshLambertMaterial({
+      map: groundTexture
     })
-    const floor = new THREE.Mesh(floorGeometry, floorMaterial)
-    scene.add(floor)
-    const standardMaterial = new THREE.MeshStandardMaterial({
-      color: 0xa00000,
-      roughness: 0,
-      metalness: 0
-    })
-    // 立方体
-    const cubeGeometry = new THREE.BoxBufferGeometry(4, 4, 4)
-    const cube = new THREE.Mesh(cubeGeometry, standardMaterial)
-    cube.position.set(-5, 2, 0)
-    scene.add(cube)
-    // 球体
-    const sphereGeometry = new THREE.SphereGeometry(2, 50, 50)
-    const sphere = new THREE.Mesh(sphereGeometry, standardMaterial)
-    sphere.position.set(0, 3, 0)
+    const ground = new THREE.Mesh(groundGeometry, groundMaterial)
+    ground.rotation.x = -0.5 * Math.PI
+    ground.position.y = -40
+    ground.receiveShadow = true
+    scene.add(ground)
+    const sphereGeometry = new THREE.SphereGeometry(15, 50, 50)
+    const sphereMaterial = new THREE.MeshLambertMaterial()
+    const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
+    sphere.castShadow = true
     scene.add(sphere)
-    // 圆桶体
-    const cylindeGeometry = new THREE.TorusBufferGeometry(2, 0.3, 50, 50)
-    const cylinder = new THREE.Mesh(cylindeGeometry, standardMaterial)
-    cylinder.rotation.x = -0.5 * Math.PI
-    cylinder.position.set(5, 2, 0)
-    scene.add(cylinder)
-
     return {
-      floor,
-      cube,
-      sphere,
-      cylinder,
-      standardMaterial
+      ground,
+      sphere
     }
   }
 
@@ -182,117 +211,30 @@ export default class extends Vue {
     controls.maxPolarAngle = 0.49 * Math.PI
     // 旋转速度
     controls.rotateSpeed = 0.05
+    // 最大可视距离
+    controls.maxDistance = 500
+    // 最小可视距离
+    controls.minDistance = 100
+    controls.enablePan = false
+    controls.enableRotate = false
     return controls
   }
 
   /**
    * GUI
    */
-  initGUI(
-    ambientLight: THREE.AmbientLight,
-    rectLight: THREE.RectAreaLight,
-    floor: THREE.Mesh,
-    standMaterial: THREE.MeshStandardMaterial,
-    rectLigtMesh: THREE.Mesh
-  ): GUI {
+  initGUI(pointLight: THREE.PointLight): GUI {
     class GuiControls {
-      private ambientLight: string
-      private ambientIntensity: number
-
-      public motion = true
-      private width: number
-      private height: number
-      private rectLightColor: string
-      private intensity: number
-
-      private floorColor: string
-      private floorRoughness: number
-      private floorMetalness: number
-
-      private standMaterialColor: string
-      private roughness: number
-      private metalness: number
-      constructor(
-        ambient: THREE.AmbientLight,
-        rectLight: THREE.RectAreaLight,
-        floor: THREE.Mesh,
-        standMaterial: THREE.MeshStandardMaterial
-      ) {
-        this.ambientLight = ambient.color.getStyle()
-        this.ambientIntensity = ambient.intensity
-        //
-        this.width = rectLight.width
-        this.height = rectLight.height
-        this.rectLightColor = rectLight.color.getStyle()
-        this.intensity = rectLight.intensity
-        //
-        this.floorColor = floor.material.color.getStyle()
-        this.floorRoughness = floor.material.roughness
-        this.floorMetalness = floor.material.metalness
-        //
-        this.standMaterialColor = standMaterial.color.getStyle()
-        this.roughness = standMaterial.roughness
-        this.metalness = standMaterial.metalness
+      public color = ''
+      constructor(light: THREE.PointLight) {
+        this.color = light.color.getStyle()
       }
     }
     const gui = new GUI({ width: 300 }) // 插件宽度
-    const guiControls = new GuiControls(
-      ambientLight,
-      rectLight,
-      floor,
-      standMaterial
-    )
-    gui.add(guiControls, 'motion')
-    const ambientFolder = gui.addFolder('环境光')
-    ambientFolder.addColor(guiControls, 'ambientLight').onChange(e => {
-      ambientLight.color.setStyle(e)
+    const guiControls = new GuiControls(pointLight)
+    gui.addColor(guiControls, 'color').onChange(e => {
+      pointLight.color.setStyle(e)
     })
-    ambientFolder.add(guiControls, 'ambientIntensity').onChange(e => {
-      ambientLight.intensity = e
-    })
-    ambientFolder.open()
-
-    const rectLightFolder = gui.addFolder('矩形面光')
-    rectLightFolder.add(guiControls, 'width', 0, 20).onChange(e => {
-      rectLight.width = e
-      rectLigtMesh.scale.x = rectLight.width
-    })
-    rectLightFolder.add(guiControls, 'height', 0, 20).onChange(e => {
-      rectLight.height = 0
-      rectLigtMesh.scale.y = rectLight.height
-    })
-    rectLightFolder.addColor(guiControls, 'rectLightColor').onChange(e => {
-      rectLight.color = new THREE.Color(e)
-      rectLigtMesh.material.color.copy(rectLight.color)
-    })
-    rectLightFolder.add(guiControls, 'intensity', 0, 5).onChange(e => {
-      rectLight.intensity = e
-    })
-    rectLightFolder.open()
-
-    const floorFolder = gui.addFolder('地板')
-    floorFolder.addColor(guiControls, 'floorColor').onChange(e => {
-      floor.material.color.setStyle(e)
-    })
-    floorFolder.add(guiControls, 'floorRoughness', 0, 1).onChange(e => {
-      floor.material.roughness = e
-    })
-    floorFolder.add(guiControls, 'floorMetalness', 0, 1).onChange(e => {
-      floor.material.metalness = e
-    })
-    floorFolder.open()
-
-    const standFolder = gui.addFolder('标准材质')
-    standFolder.addColor(guiControls, 'standMaterialColor').onChange(e => {
-      standMaterial.color.setStyle(e)
-    })
-    standFolder.add(guiControls, 'roughness', 0, 1).onChange(e => {
-      standMaterial.roughness = e
-    })
-    standFolder.add(guiControls, 'metalness', 0, 1).onChange(e => {
-      standMaterial.metalness = e
-    })
-    standFolder.open()
     return {
       gui,
       guiControls
@@ -314,21 +256,14 @@ export default class extends Vue {
     const webGlRenderer = vm.initRenderer(domThreejsObj)
     const camera = vm.initCamera(domThreejsObj)
     const scene = vm.initScene()
-    const { ambientLight, rectLight, rectLightMesh } = vm.initLight(scene)
-    const { floor, cube, sphere, cylinder, standardMaterial } = vm.initContent(
-      scene
-    )
+    const {
+      pointLight,
+      directionalLight,
+      directionalLightHelper
+    } = vm.initLight(scene)
+    const { ground, sphere } = vm.initContent(scene)
     const orbitControls = vm.initOrbitControls(camera, webGlRenderer)
-    const { gui, guiControls } = vm.initGUI(
-      ambientLight,
-      rectLight,
-      floor,
-      standardMaterial,
-      rectLightMesh
-    )
-    ;(<HTMLElement>vm.$refs.WidgetGUI).appendChild(gui.domElement)
-
-    const origin = new THREE.Vector3(0, 0, 0)
+    const { gui, guiControls } = vm.initGUI(pointLight)
 
     // 窗口大小改变触发的方法
     window.addEventListener(
@@ -338,19 +273,15 @@ export default class extends Vue {
       },
       false
     )
+    let step = 0
     // 渲染方法
     function render(): void {
       // 更新性能插件
       stats.update()
+      step += 0.02
       orbitControls.update()
-      if (guiControls.motion) {
-        const time = Date.now() / 2000
-        const lx = 15.0 * Math.cos(time)
-        const lz = 15.0 * Math.sin(time)
-        const ly = 5.0 + 5.0 * Math.sin(time / 3.0)
-        rectLight.position.set(lx, ly, lz)
-        rectLight.lookAt(origin)
-      }
+      // 球体的y坐标，做正弦曲线运动，模拟出弹跳效果
+      sphere.position.y = -30 + 70 * Math.abs(Math.sin(step))
     }
     function animate(): void {
       requestAnimationFrame(animate)
