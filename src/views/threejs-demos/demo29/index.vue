@@ -74,10 +74,6 @@ export default class extends Vue {
     webGlRenderer.setPixelRatio(window.devicePixelRatio)
     // 渲染范围
     webGlRenderer.setSize(domView.offsetWidth, domView.offsetHeight)
-    // 开启阴影支持
-    webGlRenderer.shadowMap.enabled = true
-    // 阴影类型
-    webGlRenderer.shadowMap.type = THREE.PCFSoftShadowMap
     domView.appendChild(webGlRenderer.domElement)
     return webGlRenderer
   }
@@ -89,10 +85,10 @@ export default class extends Vue {
     const camera = new THREE.PerspectiveCamera(
       45,
       domView.offsetWidth / domView.offsetHeight,
-      0.1,
-      5000
+      20,
+      150
     )
-    camera.position.set(0, 0, 250)
+    camera.position.set(-50, 40, 50)
     camera.lookAt(new THREE.Vector3(0, 0, 0))
     return camera
   }
@@ -127,11 +123,72 @@ export default class extends Vue {
   /**
    * GUI
    */
-  initGUI(
-    scene: THREE.Scene,
-    ambientLight: THREE.AmbientLight,
-    torusKont: THREE.Mesh
-  ): GUI {}
+  initGUI(scene: THREE.Scene, camera: THREE.PerspectiveCamera): GUI {
+    class GuiControls {
+      private scene: THREE.Scene
+      private sceneBackground = 'rgb(255,255,255)'
+      private cameraNear: number
+      private cameraFar: number
+      private numberOfObjects: number
+      constructor(scene: THREE.Scene, camera: THREE.PerspectiveCamera) {
+        this.scene = scene
+        const sceneBack = scene.background as THREE.Color
+        if (sceneBack) {
+          this.sceneBackground = sceneBack.getStyle()
+          console.log('background', this.sceneBackground)
+        }
+        this.cameraNear = camera.near
+        this.cameraFar = camera.far
+        this.numberOfObjects = scene.children.length
+      }
+
+      addCube() {
+        const cubeSize = Math.ceil(3 + Math.random() * 3)
+        const cubeGeometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize)
+        const cubeMaterial = new THREE.MeshDepthMaterial()
+        const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
+        cube.castShadow = true
+        cube.position.x = -60 + Math.round(Math.random() * 100)
+        cube.position.y = Math.round(Math.random() * 10)
+        cube.position.z = -100 + Math.round(Math.random() * 150)
+        this.scene.add(cube)
+        this.numberOfObjects = this.scene.children.length
+      }
+
+      removeCube() {
+        const allChildern = scene.children
+        const lastObject = allChildern[allChildern.length - 1] as THREE.Mesh
+        if (lastObject.isMesh) {
+          this.scene.remove(lastObject)
+          this.numberOfObjects = this.scene.children.length
+        }
+      }
+    }
+    const gui = new GUI({
+      width: 300
+    })
+    const guiControls = new GuiControls(scene, camera)
+    gui.addColor(guiControls, 'sceneBackground').onChange(e => {
+      const sceneBack = scene.background as THREE.Color
+      if (sceneBack) {
+        sceneBack.setStyle(e)
+      }
+    })
+    gui.add(guiControls, 'cameraNear', 5, 30).onChange(e => {
+      camera.near = e
+      console.log('camera near ', camera.near)
+    })
+    gui.add(guiControls, 'cameraFar', 150, 500).onChange(e => {
+      camera.far = e
+      console.log('camera far ', camera.far)
+    })
+    gui.add(guiControls, 'addCube')
+    gui.add(guiControls, 'removeCube')
+    return {
+      gui,
+      guiControls
+    }
+  }
 
   init() {
     const vm = this
@@ -145,6 +202,13 @@ export default class extends Vue {
     const webGlRenderer = vm.initRenderer(domThreejsObj)
     const camera = vm.initCamera(domThreejsObj)
     const scene = vm.initScene()
+    const { gui, guiControls } = vm.initGUI(scene, camera)
+    ;(<HTMLElement>vm.$refs.WidgetGUI).append(gui.domElement)
+    let i = 0
+    while (i < 20) {
+      guiControls.addCube()
+      i++
+    }
 
     // 窗口大小改变触发的方法
     window.addEventListener(
@@ -158,6 +222,16 @@ export default class extends Vue {
     function render(): void {
       // 更新性能插件
       stats.update()
+      // 更新相机矩阵投影  不然不能通过 gui 来更新相机的远近距离
+      camera.updateProjectionMatrix()
+      scene.traverse(e => {
+        const mesh = e as THREE.Mesh
+        if (mesh.isMesh) {
+          mesh.rotation.x += 0.02
+          mesh.rotation.y += 0.02
+          mesh.rotation.z += 0.02
+        }
+      })
     }
     function animate(): void {
       requestAnimationFrame(animate)
