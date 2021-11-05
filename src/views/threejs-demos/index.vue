@@ -32,175 +32,180 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 @Component({
-  name: 'MyThreejsDemosHomeDemo01'
+  name: 'MyThreejsDemosHomeDemo01',
 })
 export default class extends Vue {
   private routeOptions = [
     {
       key: 'MyThreejsDemosHomeDemo01',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo01',
-      label: 'demo01'
+      label: 'demo01',
     },
     {
       key: 'MyThreejsDemosHomeDemo02',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo02',
-      label: 'demo02'
+      label: 'demo02',
     },
     {
       key: 'MyThreejsDemosHomeDemo03',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo03',
-      label: 'demo03'
+      label: 'demo03',
     },
     {
       key: 'MyThreejsDemosHomeDemo04',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo04',
-      label: 'demo04'
+      label: 'demo04',
     },
     {
       key: 'MyThreejsDemosHomeDemo05',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo05',
-      label: 'demo05'
+      label: 'demo05',
     },
     {
       key: 'MyThreejsDemosHomeDemo06',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo06',
-      label: 'demo06'
+      label: 'demo06',
     },
     {
       key: 'MyThreejsDemosHomeDemo07',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo07',
-      label: 'demo07'
+      label: 'demo07',
     },
     {
       key: 'MyThreejsDemosHomeDemo08',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo08',
-      label: 'demo08'
+      label: 'demo08',
     },
     {
       key: 'MyThreejsDemosHomeDemo09',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo09',
-      label: 'demo09'
+      label: 'demo09',
     },
     {
       key: 'MyThreejsDemosHomeDemo10',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo10',
-      label: 'demo10'
+      label: 'demo10',
     },
     {
       key: 'MyThreejsDemosHomeDemo11',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo11',
-      label: 'demo11'
+      label: 'demo11',
     },
     {
       key: 'MyThreejsDemosHomeDemo12',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo12',
-      label: 'demo12'
+      label: 'demo12',
     },
     {
       key: 'MyThreejsDemosHomeDemo13',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo13',
-      label: 'demo13'
+      label: 'demo13',
     },
     {
       key: 'MyThreejsDemosHomeDemo14',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo14',
-      label: 'demo14'
+      label: 'demo14',
     },
     {
       key: 'MyThreejsDemosHomeDemo15',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo15',
-      label: 'demo15'
+      label: 'demo15',
     },
     {
       key: 'MyThreejsDemosHomeDemo16',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo16',
-      label: 'demo16'
+      label: 'demo16',
     },
     {
       key: 'MyThreejsDemosHomeDemo17',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo17',
-      label: 'demo17'
+      label: 'demo17',
     },
     {
       key: 'MyThreejsDemosHomeDemo18',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo18',
-      label: 'demo18'
+      label: 'demo18',
     },
     {
       key: 'MyThreejsDemosHomeDemo19',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo19',
-      label: 'demo19'
+      label: 'demo19',
     },
     {
       key: 'MyThreejsDemosHomeDemo20',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo20',
-      label: 'demo20'
+      label: 'demo20',
     },
     {
       key: 'MyThreejsDemosHomeDemo21',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo21',
-      label: 'demo21'
+      label: 'demo21',
     },
     {
       key: 'MyThreejsDemosHomeDemo22',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo22',
-      label: 'demo22'
+      label: 'demo22',
     },
     {
       key: 'MyThreejsDemosHomeDemo23',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo23',
-      label: 'demo23'
+      label: 'demo23',
     },
     {
       key: 'MyThreejsDemosHomeDemo24',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo24',
-      label: 'demo24'
+      label: 'demo24',
     },
     {
       key: 'MyThreejsDemosHomeDemo25',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo25',
-      label: 'demo25'
+      label: 'demo25',
     },
     {
       key: 'MyThreejsDemosHomeDemo26',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo26',
-      label: 'demo26'
+      label: 'demo26',
     },
     {
       key: 'MyThreejsDemosHomeDemo27',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo27',
-      label: 'demo27'
+      label: 'demo27',
     },
     {
       key: 'MyThreejsDemosHomeDemo28',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo28',
-      label: 'demo28'
+      label: 'demo28',
     },
     {
       key: 'MyThreejsDemosHomeDemo29',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo29',
-      label: 'demo29'
+      label: 'demo29',
     },
     {
       key: 'MyThreejsDemosHomeDemo30',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo30',
-      label: 'demo30'
+      label: 'demo30',
     },
     {
       key: 'MyThreejsDemosHomeDemo31',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo31',
-      label: 'demo31'
+      label: 'demo31',
     },
     {
       key: 'MyThreejsDemosHomeDemo32',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo32',
-      label: 'demo32'
+      label: 'demo32',
     },
     {
       key: 'MyThreejsDemosHomeDemo33',
       path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo33',
-      label: 'demo33'
-    }
+      label: 'demo33',
+    },
+    {
+      key: 'MyThreejsDemosHomeDemo34',
+      path: '/MyThreejsDemos/MyThreejsDemosHome/MyThreejsDemosHomeDemo34',
+      label: 'demo34',
+    },
   ]
 }
 </script>
