@@ -35,12 +35,10 @@ export default class extends Vue {
       throw new Error('[initStats]:miss dom')
     }
     const stats = new Stats()
-    stats.setMode(0) // 0:显示 fps, 1:ms
-    // 调整插件布局
+    stats.setMode(0)
     stats.domElement.style.position = 'absolute'
     stats.domElement.style.left = '0px'
     stats.domElement.style.top = '0px'
-    // 加入画布
     domWidgetStats.append(stats.domElement)
     return stats
   }
@@ -53,7 +51,6 @@ export default class extends Vue {
 
   init() {
     const vm = this
-    // 初始化性能插件
     const domWidgetStats = vm.preInitStats('WidgetStats')
     const stats = this.initStats(domWidgetStats)
     if (!vm.domThreejs) {
@@ -64,34 +61,26 @@ export default class extends Vue {
     const viewHeight = domThreejsObj.offsetHeight
     const viewSolution = domThreejsObj.offsetWidth / domThreejsObj.offsetWidth
 
-    // 创建 webGLRenderer
     const webGlRenderer = new THREE.WebGLRenderer()
     webGlRenderer.antialias = true
     webGlRenderer.autoClear = true
     webGlRenderer.setClearColor(0x050505)
     webGlRenderer.setSize(viewWidth, viewHeight)
-    // 将渲染器添加到画布
     domThreejsObj.append(webGlRenderer.domElement)
-    // 创建相机
     const camera = new THREE.PerspectiveCamera(45, viewSolution, 0.1, 10000)
     camera.position.set(0, 300, 600)
     camera.lookAt(0, 0, 0)
-    // 创建场景
     const scene = new THREE.Scene()
-    // 创建实体
     const torusGeometry = new THREE.TorusGeometry(100, 10, 50, 100)
     const torusMaterial = new THREE.MeshNormalMaterial()
     const torus = new THREE.Mesh(torusGeometry, torusMaterial)
     torus.position.y = 120
     scene.add(torus)
-    // 创建gridHelper
     const gridHelper = new THREE.GridHelper(1200, 60, 0xff4444, 0x404040)
     scene.add(gridHelper)
-    // 创建轨道控件
     const orbitControls = new OrbitControls(camera, webGlRenderer.domElement)
     orbitControls.enablePan = false
 
-    // 窗口大小改变触发的方法
     window.addEventListener(
       'resize',
       () => {
@@ -99,17 +88,12 @@ export default class extends Vue {
       },
       false
     )
-    // 渲染方法
     function render(): void {
-      // 更新性能插件
       stats.update()
-      // 更新轨道控件
       orbitControls.update()
       torus.rotation.x += 0.01
       torus.rotation.y += 0.01
       torus.rotation.z += 0.01
-      // 开始渲染
-      debugger
       webGlRenderer.render(scene, camera)
     }
     function animate(): void {
@@ -119,14 +103,13 @@ export default class extends Vue {
     animate()
   }
 
-  // 视图展示区域随窗口缩放
   onViewContainerResize(
     viewDom: HTMLElement,
     camera: THREE.PerspectiveCamera,
     renderer: THREE.WebGLRenderer
   ): void {
     camera.aspect = viewDom.offsetWidth / viewDom.offsetHeight
-    camera.updateProjectionMatrix() // 更新相机的投影矩阵
+    camera.updateProjectionMatrix()
     renderer.setSize(viewDom.offsetWidth, viewDom.offsetHeight) // 重新设置渲染器大小
   }
 }

@@ -21,10 +21,6 @@ import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockCont
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module'
 import { WEBGL } from 'three/examples/jsm/WebGL'
 import { GridHelper } from 'three'
-/**
- * Three.js 源码更新，删除了Detector.js ，采用新的WebGL.js了
- */
-
 @Component({
   name: 'MyThreeDemosHomeDemo10'
 })
@@ -53,12 +49,10 @@ export default class extends Vue {
       throw new Error('[initStats]:miss dom')
     }
     const stats = new Stats()
-    stats.setMode(0) // 0:显示 fps, 1:ms
-    // 调整插件布局
+    stats.setMode(0)
     stats.domElement.style.position = 'absolute'
     stats.domElement.style.left = '0px'
     stats.domElement.style.top = '0px'
-    // 加入画布
     domWidgetStats.append(stats.domElement)
     return stats
   }
@@ -70,7 +64,6 @@ export default class extends Vue {
     if (!this.domBlock) {
       this.domBlock = this.$refs[this.blockDivName] as HTMLElement
     }
-    // 说明文档对象
     if (!this.domInstructions) {
       this.domInstructions = this.$refs[this.instructionsDivName] as HTMLElement
     }
@@ -78,7 +71,6 @@ export default class extends Vue {
 
   init() {
     const vm = this
-    // 初始化性能插件
     const domWidgetStats = vm.preInitStats('WidgetStats')
     const stats = this.initStats(domWidgetStats)
     if (!vm.domThreejs) {
@@ -91,7 +83,6 @@ export default class extends Vue {
     const domBlockObj = vm.domBlock
     const domInstructionsObj = vm.domInstructions
 
-    // 创建渲染器
     const webGlRenderer = new THREE.WebGLRenderer({
       antialias: true
     })
@@ -99,24 +90,17 @@ export default class extends Vue {
     webGlRenderer.setClearColor(0x050505)
     webGlRenderer.setSize(viewWidth, viewHeight)
     domThreejsObj.append(webGlRenderer.domElement)
-    // 创建相机
     const camera = new THREE.PerspectiveCamera(45, viewSolution, 0.1, 10000)
-    // 加入点锁定控件也可以设置相机属性
     camera.position.set(0, 60, 600)
     camera.lookAt(new THREE.Vector3(0, 0, 0))
-    // 创建场景
     const scene = new THREE.Scene()
-    // 实体
-    // 灯光
     const spotLight = new THREE.SpotLight(0xffffff)
     spotLight.position.set(-300, 600, -400)
     spotLight.castShadow = true
     scene.add(spotLight)
     scene.add(new THREE.AmbientLight(0xc1c1c1))
-    // 格网辅助
     const gridHelper = new GridHelper(1200, 60, 0xcd2626, 0x5c5c5c)
     scene.add(gridHelper)
-    // 地板
     let floorGeometry = new THREE.PlaneBufferGeometry(2000, 2000, 100, 100)
     floorGeometry.rotateX(-Math.PI / 2)
     floorGeometry = floorGeometry.toNonIndexed()
@@ -130,14 +114,11 @@ export default class extends Vue {
     })
     const floor = new THREE.Mesh(floorGeometry, floorMaterial)
     scene.add(floor)
-    // PointerControls
     const pointerLockControls = new PointerLockControls(camera)
     scene.add(pointerLockControls.getObject())
-    // GUI
     const gui = new GUI()
     ;(<HTMLElement>vm.$refs.WidgetGUI).appendChild(gui.domElement)
 
-    // 判断浏览器是否支持 PointerLock
     const havePointerLock = this.supportPointerLock()
     if (!havePointerLock) {
       domInstructionsObj.innerHTML =
@@ -145,9 +126,8 @@ export default class extends Vue {
       return
     }
     const element = document.body
-    let controlsEnable = false // 鼠标锁定模式开启
+    let controlsEnable = false
     const pointerlockChange = function(event) {
-      debugger
       if (
         document.pointerLockElement === element ||
         document.mozPointerLockElement === element ||
@@ -160,7 +140,6 @@ export default class extends Vue {
         vm.blockVisible = true
       }
     }
-    // 添加 pointerLockChange事件
     document.addEventListener('pointerlockChange', pointerlockChange)
     document.addEventListener('mozpointerlockchange', pointerlockChange)
     document.addEventListener('webkitpointerlockchange', pointerlockChange)
@@ -171,13 +150,10 @@ export default class extends Vue {
     document.addEventListener('mozpointerlockerror', pointerlockError)
     document.addEventListener('webkitpointerlockerror', pointerlockError)
 
-    // 窗口点击事件
     domBlockObj.addEventListener(
       'click',
       () => {
-        debugger
         vm.blockVisible = false
-        // ask the browser to lock the pointer
         element.requestPointerLock =
           element.requestPointerLock ||
           element.mozRequestPointerLock ||
@@ -186,9 +162,7 @@ export default class extends Vue {
       },
       false
     )
-    // Esc事件-退出鼠标锁定模式
     window.addEventListener('keypress', event => {
-      debugger
       if (event.code === 27) {
         if (document.pointerLockElement) {
           if (
@@ -202,7 +176,6 @@ export default class extends Vue {
       }
     })
 
-    // 窗口大小改变触发的方法
     window.addEventListener(
       'resize',
       () => {
@@ -210,11 +183,8 @@ export default class extends Vue {
       },
       false
     )
-    // 渲染方法
     function render(): void {
-      // 更新性能插件
       stats.update()
-      // 开始渲染
       webGlRenderer.render(scene, camera)
     }
     function animate(): void {
@@ -224,15 +194,14 @@ export default class extends Vue {
     animate()
   }
 
-  // 视图展示区域随窗口缩放
   onViewContainerResize(
     viewDom: HTMLElement,
     camera: THREE.PerspectiveCamera,
     renderer: THREE.WebGLRenderer
   ): void {
     camera.aspect = viewDom.offsetWidth / viewDom.offsetHeight
-    camera.updateProjectionMatrix() // 更新相机的投影矩阵
-    renderer.setSize(viewDom.offsetWidth, viewDom.offsetHeight) // 重新设置渲染器大小
+    camera.updateProjectionMatrix()
+    renderer.setSize(viewDom.offsetWidth, viewDom.offsetHeight)
   }
 
   supportPointerLock(): boolean {

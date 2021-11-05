@@ -46,12 +46,10 @@ export default class extends Vue {
       throw new Error('[initStats]:miss dom')
     }
     const stats = new Stats()
-    stats.setMode(0) // 0:显示 fps, 1:ms
-    // 调整插件布局
+    stats.setMode(0)
     stats.domElement.style.position = 'absolute'
     stats.domElement.style.left = '0px'
     stats.domElement.style.top = '0px'
-    // 加入画布
     domWidgetStats.append(stats.domElement)
     return stats
   }
@@ -62,29 +60,19 @@ export default class extends Vue {
     }
   }
 
-  /**
-   * 创建渲染器
-   */
   initRenderer(domView: HTMLElement): THREE.WebGLRenderer {
     const webGlRenderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true
     })
-    // 设置渲染器的像素比例，按照设备
     webGlRenderer.setPixelRatio(window.devicePixelRatio)
-    // 渲染范围
     webGlRenderer.setSize(domView.offsetWidth, domView.offsetHeight)
-    // 开启阴影支持
     webGlRenderer.shadowMap.enabled = true
-    // 阴影类型
     webGlRenderer.shadowMap.type = THREE.PCFSoftShadowMap
     domView.appendChild(webGlRenderer.domElement)
     return webGlRenderer
   }
 
-  /**
-   * 创建相机
-   */
   initCamera(domView: HTMLElement): THREE.PerspectiveCamera {
     const camera = new THREE.PerspectiveCamera(
       45,
@@ -97,9 +85,6 @@ export default class extends Vue {
     return camera
   }
 
-  /**
-   * 创建场景
-   */
   initScene() {
     const scene = new THREE.Scene()
     scene.background = new THREE.Color(0xb0e2ff)
@@ -107,14 +92,10 @@ export default class extends Vue {
     return scene
   }
 
-  /**
-   * 创建灯光
-   */
   initLight(scene: THREE.Scene) {
     scene.add(new THREE.AmbientLight(0xb38949))
     const pointLight = new THREE.PointLight(0xfffff, 1, 2000)
     const textureLoader = new THREE.TextureLoader()
-    // 添加镜头炫光
     const textFlare0 = textureLoader.load(
       require('./textures/lensflare/lensflare0_alpha.png')
     )
@@ -166,9 +147,6 @@ export default class extends Vue {
     }
   }
 
-  /**
-   * 场景中内容
-   */
   initContent(scene: THREE.Scene) {
     const textureLoader = new THREE.TextureLoader()
     const groundTexture = textureLoader.load(
@@ -197,32 +175,21 @@ export default class extends Vue {
     }
   }
 
-  /**
-   * 创建控制器
-   */
   initOrbitControls(
     camera: THREE.Camera,
     webglRenderer: THREE.WebGLRenderer
   ): OrbitControls {
     const controls = new OrbitControls(camera, webglRenderer.domElement)
-    // 添加惯性
     controls.enableDamping = true
-    // 最大偏移角度
     controls.maxPolarAngle = 0.49 * Math.PI
-    // 旋转速度
     controls.rotateSpeed = 0.05
-    // 最大可视距离
     controls.maxDistance = 500
-    // 最小可视距离
     controls.minDistance = 100
     controls.enablePan = false
     controls.enableRotate = false
     return controls
   }
 
-  /**
-   * GUI
-   */
   initGUI(pointLight: THREE.PointLight): GUI {
     class GuiControls {
       public color = ''
@@ -230,7 +197,7 @@ export default class extends Vue {
         this.color = light.color.getStyle()
       }
     }
-    const gui = new GUI({ width: 300 }) // 插件宽度
+    const gui = new GUI({ width: 300 })
     const guiControls = new GuiControls(pointLight)
     gui.addColor(guiControls, 'color').onChange(e => {
       pointLight.color.setStyle(e)
@@ -244,9 +211,7 @@ export default class extends Vue {
   init() {
     console.log(RectAreaLightUniformsLib)
     RectAreaLightUniformsLib.init()
-    debugger
     const vm = this
-    // 初始化性能插件
     const domWidgetStats = vm.preInitStats('WidgetStats')
     const stats = this.initStats(domWidgetStats)
     if (!vm.domThreejs) {
@@ -265,7 +230,6 @@ export default class extends Vue {
     const orbitControls = vm.initOrbitControls(camera, webGlRenderer)
     const { gui, guiControls } = vm.initGUI(pointLight)
 
-    // 窗口大小改变触发的方法
     window.addEventListener(
       'resize',
       () => {
@@ -274,32 +238,27 @@ export default class extends Vue {
       false
     )
     let step = 0
-    // 渲染方法
     function render(): void {
-      // 更新性能插件
       stats.update()
       step += 0.02
       orbitControls.update()
-      // 球体的y坐标，做正弦曲线运动，模拟出弹跳效果
       sphere.position.y = -30 + 70 * Math.abs(Math.sin(step))
     }
     function animate(): void {
       requestAnimationFrame(animate)
-      // 开始渲染
       webGlRenderer.render(scene, camera)
       render()
     }
     animate()
   }
 
-  // 视图展示区域随窗口缩放
   onViewContainerResize(
     viewDom: HTMLElement,
     camera: THREE.PerspectiveCamera,
     renderer: THREE.WebGLRenderer
   ): void {
     camera.aspect = viewDom.offsetWidth / viewDom.offsetHeight
-    camera.updateProjectionMatrix() // 更新相机的投影矩阵
+    camera.updateProjectionMatrix()
     renderer.setSize(viewDom.offsetWidth, viewDom.offsetHeight) // 重新设置渲染器大小
   }
 }

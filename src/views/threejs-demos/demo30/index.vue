@@ -16,7 +16,6 @@ import {
   LensflareElement
 } from 'three/examples/jsm/objects/Lensflare'
 import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib'
-// 使用叠加混合材料需要引入 SecneUtils 工具类
 import { SceneUtils } from 'three/examples/jsm/utils/SceneUtils'
 import {
   CylinderGeometry,
@@ -48,12 +47,10 @@ export default class extends Vue {
       throw new Error('[initStats]:miss dom')
     }
     const stats = new Stats()
-    stats.setMode(0) // 0:显示 fps, 1:ms
-    // 调整插件布局
+    stats.setMode(0)
     stats.domElement.style.position = 'absolute'
     stats.domElement.style.left = '0px'
     stats.domElement.style.top = '0px'
-    // 加入画布
     domWidgetStats.append(stats.domElement)
     return stats
   }
@@ -64,25 +61,17 @@ export default class extends Vue {
     }
   }
 
-  /**
-   * 创建渲染器
-   */
   initRenderer(domView: HTMLElement): THREE.WebGLRenderer {
     const webGlRenderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true
     })
-    // 设置渲染器的像素比例，按照设备
     webGlRenderer.setPixelRatio(window.devicePixelRatio)
-    // 渲染范围
     webGlRenderer.setSize(domView.offsetWidth, domView.offsetHeight)
     domView.appendChild(webGlRenderer.domElement)
     return webGlRenderer
   }
 
-  /**
-   * 创建相机
-   */
   initCamera(domView: HTMLElement): THREE.PerspectiveCamera {
     const camera = new THREE.PerspectiveCamera(
       45,
@@ -95,36 +84,21 @@ export default class extends Vue {
     return camera
   }
 
-  /**
-   * 创建场景
-   */
   initScene() {
     const scene = new THREE.Scene()
     scene.background = new THREE.Color(0x050505)
     return scene
   }
 
-  /**
-   * 创建灯光
-   */
   initLight(scene: THREE.Scene) {}
 
-  /**
-   * 场景中内容
-   */
   initContent(scene: THREE.Scene) {}
 
-  /**
-   * 创建控制器
-   */
   initOrbitControls(
     camera: THREE.Camera,
     webglRenderer: THREE.WebGLRenderer
   ): OrbitControls {}
 
-  /**
-   * GUI
-   */
   initGUI(scene: THREE.Scene, camera: THREE.PerspectiveCamera) {
     class GuiControls {
       private scene: THREE.Scene
@@ -151,9 +125,7 @@ export default class extends Vue {
           color: 0xffffff * Math.random()
         })
         basicMaterial.transparent = true
-        // 使用叠加混合
         basicMaterial.blending = THREE.MultiplyBlending
-        debugger
         const cube = SceneUtils.createMultiMaterialObject(cubeGeometry, [
           cubeMaterial,
           basicMaterial
@@ -203,7 +175,6 @@ export default class extends Vue {
 
   init() {
     const vm = this
-    // 初始化性能插件
     const domWidgetStats = vm.preInitStats('WidgetStats')
     const stats = this.initStats(domWidgetStats)
     if (!vm.domThreejs) {
@@ -222,7 +193,6 @@ export default class extends Vue {
       i++
     }
 
-    // 窗口大小改变触发的方法
     window.addEventListener(
       'resize',
       () => {
@@ -230,11 +200,8 @@ export default class extends Vue {
       },
       false
     )
-    // 渲染方法
     function render(): void {
-      // 更新性能插件
       stats.update()
-      // 更新相机矩阵投影  不然不能通过 gui 来更新相机的远近距离
       camera.updateProjectionMatrix()
       scene.traverse(e => {
         const mesh = e as THREE.Mesh
@@ -247,21 +214,19 @@ export default class extends Vue {
     }
     function animate(): void {
       requestAnimationFrame(animate)
-      // 开始渲染
       webGlRenderer.render(scene, camera)
       render()
     }
     animate()
   }
 
-  // 视图展示区域随窗口缩放
   onViewContainerResize(
     viewDom: HTMLElement,
     camera: THREE.PerspectiveCamera,
     renderer: THREE.WebGLRenderer
   ): void {
     camera.aspect = viewDom.offsetWidth / viewDom.offsetHeight
-    camera.updateProjectionMatrix() // 更新相机的投影矩阵
+    camera.updateProjectionMatrix()
     renderer.setSize(viewDom.offsetWidth, viewDom.offsetHeight) // 重新设置渲染器大小
   }
 }

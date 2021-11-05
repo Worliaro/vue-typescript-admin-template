@@ -34,12 +34,10 @@ export default class extends Vue {
       throw new Error('[initStats]:miss dom')
     }
     const stats = new Stats()
-    stats.setMode(0) // 0:显示 fps, 1:ms
-    // 调整插件布局
+    stats.setMode(0)
     stats.domElement.style.position = 'absolute'
     stats.domElement.style.left = '0px'
     stats.domElement.style.top = '0px'
-    // 加入画布
     domWidgetStats.append(stats.domElement)
     return stats
   }
@@ -52,7 +50,6 @@ export default class extends Vue {
 
   init() {
     const vm = this
-    // 初始化性能插件
     const domWidgetStats = vm.preInitStats('WidgetStats')
     const stats = this.initStats(domWidgetStats)
     if (!vm.domThreejs) {
@@ -62,26 +59,19 @@ export default class extends Vue {
     const viewWidth = domThreejsObj.offsetWidth
     const viewHeight = domThreejsObj.offsetHeight
     const viewSolution = domThreejsObj.offsetWidth / domThreejsObj.offsetWidth
-    // 创建渲染器
     const webGlRenderer = new THREE.WebGLRenderer()
     webGlRenderer.setClearColor(0xeeeeee)
     webGlRenderer.setSize(viewWidth, viewHeight)
-    // 开启渲染器支持阴影效果
     webGlRenderer.shadowMap.enabled = true
-    webGlRenderer.shadowMap.type = THREE.PCFSoftShadowMap // 设置阴影类型
+    webGlRenderer.shadowMap.type = THREE.PCFSoftShadowMap
     domThreejsObj.append(webGlRenderer.domElement)
-    // 创建相机
     const camera = new THREE.PerspectiveCamera(45, viewSolution, 0.1, 10000)
     camera.position.set(-35, 20, 25)
     camera.lookAt(new THREE.Vector3(10, 0, 0))
-    // 创建场景
     const scene = new THREE.Scene()
-    debugger
-    // 灯光
-    const ambitneLightColor = '#1c1c1c' // 环境光颜色
+    const ambitneLightColor = '#1c1c1c'
     const ambientLight = new THREE.AmbientLight(ambitneLightColor)
     scene.add(ambientLight)
-    // 平行光
     const parallelLightColor = '#f0f0f0'
     const directionalLight = new THREE.DirectionalLight(parallelLightColor)
     directionalLight.position.set(-40, 60, -10)
@@ -92,14 +82,10 @@ export default class extends Vue {
     directionalLight.shadow.camera.right = 50
     directionalLight.shadow.camera.top = 50
     directionalLight.shadow.camera.bottom = -50
-    // 距离和强度
-    // directionalLight.distance = 0
     directionalLight.intensity = 0.5
-    // 设置阴影分辨率
     directionalLight.shadow.mapSize.width = 1024
     directionalLight.shadow.mapSize.height = 1024
     scene.add(directionalLight)
-    // 添加个球体模仿光源
     const sphereLightGeometry = new THREE.SphereGeometry(0.2)
     const sphereLightMaterial = new THREE.MeshBasicMaterial({
       color: 0xac6c25
@@ -108,7 +94,6 @@ export default class extends Vue {
     sphereLight.castShadow = true
     sphereLight.position.set(3, 20, 3)
     scene.add(sphereLight)
-    // 实体
     const planeGeometry = new THREE.PlaneGeometry(600, 200, 20, 20)
     const planeMaterial = new THREE.MeshLambertMaterial({
       color: 0xffffff
@@ -137,7 +122,6 @@ export default class extends Vue {
     sphere.position.set(20, 0, 2)
     scene.add(sphere)
 
-    // GUI
     class GUIControls {
       rotationSpeed = 0.03
       bouncingSpeed = 0.03
@@ -152,24 +136,15 @@ export default class extends Vue {
     }
     const guiControls = new GUIControls()
     const gui = new GUI()
-    debugger
-    // 环境光的颜色
     gui.addColor(guiControls, 'ambientColor').onChange(e => {
       ambientLight.color = new Color(e)
     })
-    // 平行光的颜色
     gui.addColor(guiControls, 'pointColor').onChange(e => {
       directionalLight.color = new Color(e)
     })
-    // 光的强度
     gui.add(guiControls, 'intensity', 0, 5).onChange(e => {
       directionalLight.intensity = e
     })
-    // 距离
-    // gui.add(gui, 'distance', 0, 200).onChange(e => {
-    //     directionalLight.distance = e
-    // })
-    // debug模式
     gui.add(guiControls, 'debug').onChange(e => {
       if (e) {
         const debug = new THREE.CameraHelper(directionalLight.shadow.camera)
@@ -182,11 +157,9 @@ export default class extends Vue {
         }
       }
     })
-    // 是否开启接收阴影
     gui.add(guiControls, 'castShadow').onChange(e => {
       directionalLight.castShadow = e
     })
-    // 平新光的朝向
     gui.add(guiControls, 'target', ['Plane', 'Sphere', 'Cube']).onChange(e => {
       switch (e) {
         case 'Plane':
@@ -202,7 +175,6 @@ export default class extends Vue {
     })
     ;(<HTMLElement>vm.$refs.WidgetGUI).appendChild(gui.domElement)
 
-    // 窗口大小改变触发的方法
     window.addEventListener(
       'resize',
       () => {
@@ -225,32 +197,27 @@ export default class extends Vue {
       sphereLight.position.y = 27 * Math.sin(step / 3)
       sphereLight.position.x = 10 + 26 * Math.cos(step / 3)
 
-      // 让平行光的位置随球体的位置移动而移动
       directionalLight.position.copy(sphereLight.position)
     }
-    // 渲染方法
     function render(): void {
-      // 更新性能插件
       stats.update()
       viewUpdate()
     }
     function animate(): void {
       requestAnimationFrame(animate)
-      // 开始渲染
       webGlRenderer.render(scene, camera)
       render()
     }
     animate()
   }
 
-  // 视图展示区域随窗口缩放
   onViewContainerResize(
     viewDom: HTMLElement,
     camera: THREE.PerspectiveCamera,
     renderer: THREE.WebGLRenderer
   ): void {
     camera.aspect = viewDom.offsetWidth / viewDom.offsetHeight
-    camera.updateProjectionMatrix() // 更新相机的投影矩阵
+    camera.updateProjectionMatrix()
     renderer.setSize(viewDom.offsetWidth, viewDom.offsetHeight) // 重新设置渲染器大小
   }
 }

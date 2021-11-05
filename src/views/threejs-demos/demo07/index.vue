@@ -35,12 +35,10 @@ export default class extends Vue {
       throw new Error('[initStats]:miss dom')
     }
     const stats = new Stats()
-    stats.setMode(0) // 0:显示 fps, 1:ms
-    // 调整插件布局
+    stats.setMode(0)
     stats.domElement.style.position = 'absolute'
     stats.domElement.style.left = '0px'
     stats.domElement.style.top = '0px'
-    // 加入画布
     domWidgetStats.append(stats.domElement)
     return stats
   }
@@ -53,7 +51,6 @@ export default class extends Vue {
 
   init() {
     const vm = this
-    // 初始化性能插件
     const domWidgetStats = vm.preInitStats('WidgetStats')
     const stats = this.initStats(domWidgetStats)
     if (!vm.domThreejs) {
@@ -64,7 +61,6 @@ export default class extends Vue {
     const viewHeight = domThreejsObj.offsetHeight
     const viewSolution = domThreejsObj.offsetWidth / domThreejsObj.offsetWidth
 
-    // 创建WebGlRenderer
     const webGlRenderer = new THREE.WebGLRenderer()
     webGlRenderer.antialias = true
     webGlRenderer.autoClear = true
@@ -73,15 +69,12 @@ export default class extends Vue {
     webGlRenderer.shadowMap.enabled = true
     webGlRenderer.shadowMap.type = THREE.PCFSoftShadowMap
     domThreejsObj.append(webGlRenderer.domElement)
-    // 创建场景
     const scene = new THREE.Scene()
-    scene.fog = new THREE.Fog(0xffffff, 0.015, 100) // 定义线性雾，密度随着距离的增加而线性增长
-    // 创建相机
+    scene.fog = new THREE.Fog(0xffffff, 0.015, 100)
     const camera = new THREE.PerspectiveCamera(45, viewSolution, 0.1, 10000)
     camera.position.set(-30, 40, 30)
     camera.lookAt(scene.position)
 
-    // 创建场景中的实体
     const planeGeometry = new THREE.PlaneGeometry(60, 40, 1, 1)
     const planeMaterial = new THREE.MeshLambertMaterial({
       color: 0xffffff
@@ -90,7 +83,6 @@ export default class extends Vue {
     plane.receiveShadow = true
     plane.rotation.x = -0.5 * Math.PI
     scene.add(plane)
-    // 光
     const ambientLight = new THREE.AmbientLight(0x0c0c0c)
     scene.add(ambientLight)
     const spotLight = new THREE.SpotLight(0xffffff)
@@ -100,7 +92,6 @@ export default class extends Vue {
     spotLight.shadow.mapSize.width = 2048
     scene.add(spotLight)
 
-    // 参数调节面板
     class Controls {
       private rotationSpeed = 0.02
       private numberOfObjects = 0
@@ -128,14 +119,12 @@ export default class extends Vue {
         const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
         cube.castShadow = true
         cube.receiveShadow = true
-        // 让随机出现的小立方体位置限制在平面之内
         cube.position.x =
           -30 + Math.round(Math.random() * planeGeometry.parameters.width)
         cube.position.y = 5 + Math.round(Math.random() * 5)
         cube.position.z =
           -20 + Math.round(Math.random() * planeGeometry.parameters.height)
         scene.add(cube)
-        debugger
         this.numberOfObjects = this.numberOfObjects =
           scene.children.filter(item => item instanceof THREE.Mesh).length - 1
       }
@@ -166,7 +155,6 @@ export default class extends Vue {
     fogGui.add(controls, 'near', 0, 1)
     fogGui.add(controls, 'far', 0, 10000)
     ;(<HTMLElement>vm.$refs.WidgetGUI).appendChild(gui.domElement)
-    // 窗口大小改变触发的方法
     window.addEventListener(
       'resize',
       () => {
@@ -174,11 +162,8 @@ export default class extends Vue {
       },
       false
     )
-    // 渲染方法
     function render(): void {
-      // 更新性能插件
       stats.update()
-      // traverse 方法 在这个对象scene 和所有子对象 children上执行回调
       scene.traverse(function(e: any) {
         console.log(e)
         if (e instanceof THREE.Mesh && e !== plane) {
@@ -187,7 +172,6 @@ export default class extends Vue {
           e.rotation.z += controls.getRotationSpeed()
         }
       })
-      // 开始渲染
       webGlRenderer.render(scene, camera)
     }
     function animate(): void {
@@ -197,14 +181,13 @@ export default class extends Vue {
     animate()
   }
 
-  // 视图展示区域随窗口缩放
   onViewContainerResize(
     viewDom: HTMLElement,
     camera: THREE.PerspectiveCamera,
     renderer: THREE.WebGLRenderer
   ): void {
     camera.aspect = viewDom.offsetWidth / viewDom.offsetHeight
-    camera.updateProjectionMatrix() // 更新相机的投影矩阵
+    camera.updateProjectionMatrix()
     renderer.setSize(viewDom.offsetWidth, viewDom.offsetHeight) // 重新设置渲染器大小
   }
 }
