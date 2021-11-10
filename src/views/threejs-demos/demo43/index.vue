@@ -16,26 +16,23 @@ const SceneUtils = require('three/examples/jsm/utils/SceneUtils')
 import {
   AmbientLight,
   ArrowHelper,
-  BufferGeometry,
   DirectionalLightHelper,
   EventDispatcher,
   Group,
   MeshBasicMaterial,
   Object3D,
   ParametricGeometry,
-  TorusGeometry,
   WireframeGeometry,
 } from 'three'
 import { VelocityNode } from 'three/examples/jsm/nodes/Nodes'
 
 import { Face3, Geometry } from 'three/examples/jsm/deprecated/Geometry'
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
+import { normalize } from 'gsap/dist/gsap'
 
 @Component({
-  name: 'MyThreeDemosHomeDemo42',
+  name: 'MyThreeDemosHomeDemo43',
 })
 export default class extends Vue {
-  private publicPath: string = process.env.BASE_URL
   private divName = 'domThreejs'
   private domThreejs: HTMLElement = this.$refs[this.divName] as HTMLElement
 
@@ -84,7 +81,7 @@ export default class extends Vue {
       0.1,
       10000
     )
-    camera.position.set(30, 0, 10)
+    camera.position.set(30, 20, 50)
     camera.lookAt(new THREE.Vector3(0, 0, 0))
     return camera
   }
@@ -100,76 +97,33 @@ export default class extends Vue {
 
   initContent(scene: THREE.Scene) {
     const vm = this
-    const group = new THREE.Group()
-    // 创建一个球体
-    const boxGeometry = new THREE.BoxGeometry(5, 10, 5, 20, 30, 20)
-    const cylinderGeometry = new THREE.CylinderGeometry(2, 2, 10, 30, 30)
-    const box = vm.createPointsCloud(boxGeometry)
-    const cylinder = vm.createPointsCloud(cylinderGeometry)
-
+    const dir = new THREE.Vector3(0, 2, 0)
+    dir.normalize()
+    const origin = new THREE.Vector3(0, 0, 0)
+    const length = 5
+    const hex = 0xff0000
+    const arrowHelper = new THREE.ArrowHelper(dir, origin, length, hex)
+    scene.add(arrowHelper)
+    const normalMaterial = new THREE.MeshNormalMaterial()
+    const boxGeometry = new THREE.BoxGeometry(10, 10, 10)
+    const cylinderGeometry = new THREE.CylinderGeometry(5, 5, 10)
+    const box = new THREE.Mesh(boxGeometry, normalMaterial)
+    box.name = 'box'
+    const cylinder = new THREE.Mesh(cylinderGeometry, normalMaterial)
+    cylinder.name = 'cylinder'
     box.position.x = -10
     cylinder.position.x = 10
 
+    const group = new THREE.Group()
     group.add(box)
     group.add(cylinder)
     scene.add(group)
-    const loader = new OBJLoader()
-    // 该路径在public文件夹下
-    loader.setPath(`${window.origin}/${this.publicPath}/models/walt/`)
-    loader.load('WaltHead.obj', (object) => {
-      const mesh = object.children[0]
-      if (mesh) {
-        const geometry = vm.createPointsCloud(mesh.geometry)
-        const points = vm.createPointsCloud(geometry.geometry)
-        points.scale.set(0.15, 0.15, 0.15)
-        points.position.y = -5
-        group.add(points)
-      }
-    })
+
     return {
+      box,
+      cylinder,
       group,
     }
-  }
-
-  createPointsCloud(geometry: BufferGeometry) {
-    const vm = this
-    // 精灵材质
-    const spriteMaterial = new THREE.PointsMaterial({
-      color: 0xffffff,
-      size: 0.23,
-      transparent: true,
-      map: vm.generateSprite(),
-    })
-    const points = new THREE.Points(geometry, spriteMaterial)
-    return points
-  }
-
-  generateSprite() {
-    // 常见画布并设置宽高
-    const canvas = document.createElement('canvas')
-    canvas.width = 8
-    canvas.height = 8
-    // 创建图形
-    const ctx = canvas.getContext('2d')
-    if (ctx) {
-      const gradient = ctx.createRadialGradient(
-        canvas.width / 2,
-        canvas.height / 2,
-        0,
-        canvas.width / 2,
-        canvas.height / 2,
-        canvas.width / 2
-      )
-      gradient.addColorStop(0, 'rgba(255,255,255,1)')
-      gradient.addColorStop(0.2, 'rgba(0,255,255,1')
-      gradient.addColorStop(0.6, 'rgba(0,0,64,1)')
-      ctx.fillStyle = gradient
-      ctx.fillRect(0, 0, canvas.width, canvas.height)
-      const texture = new THREE.Texture(canvas)
-      texture.needsUpdate = true
-      return texture
-    }
-    return null
   }
 
   initOrbitControls(
@@ -185,10 +139,22 @@ export default class extends Vue {
     return controls
   }
 
-  initGUI(scene: THREE.Scene) {
+  initGUI(scene: THREE.Scene, group: THREE.Group) {
     const gui = new GUI()
+    class GuiControls {
+      private group = true
+      private rotation = true
+      private scale = 1
+    }
+    const guiControls = new GuiControls()
+    gui.add(guiControls, 'scale', 0.1, 2).onChange((e) => {
+      group.scale.set(e, e, e)
+    })
+    gui.add(guiControls, 'group')
+    gui.add(guiControls, 'rotation')
     return {
       gui,
+      guiControls,
     }
   }
 
@@ -204,9 +170,9 @@ export default class extends Vue {
     const camera = vm.initCamera(domThreejsObj)
     const scene = vm.initScene()
     vm.initLight(scene)
-    const { group } = vm.initContent(scene)
+    const { box, cylinder, group } = vm.initContent(scene)
     const orbitControls = vm.initOrbitControls(camera, webGlRenderer)
-    const { gui } = vm.initGUI(scene)
+    const { gui, guiControls } = vm.initGUI(scene, group)
     ;(<HTMLElement>vm.$refs.WidgetGUI).appendChild(gui.domElement)
 
     window.addEventListener(
@@ -216,10 +182,19 @@ export default class extends Vue {
       },
       false
     )
+
+    let step = 0.01
     function update(): void {
       stats.update()
       orbitControls.update()
-      group.rotation.y += 0.01
+      // 变化
+      if (guiControls.group) {
+        group.rotateY(-step)
+      }
+      if (guiControls.rotation) {
+        scene.getObjectByName('box')?.rotateY(step + 0.05)
+        scene.getObjectByName('cylinder')?.rotateY(step + 0.05)
+      }
     }
     function animate(): void {
       requestAnimationFrame(animate)
