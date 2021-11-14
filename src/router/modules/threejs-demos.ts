@@ -373,6 +373,14 @@ const threejsDemoRoutes: RouteConfig = {
             title: 'MyThreejsDemosHomeDemo44',
           },
         },
+        {
+          path: 'MyThreejsDemosHomeDemo45',
+          component: () => import('@/views/threejs-demos/demo45/index.vue'),
+          name: 'MyThreejsDemosHomeDemo45',
+          meta: {
+            title: 'MyThreejsDemosHomeDemo45',
+          },
+        },
       ],
     },
   ],
